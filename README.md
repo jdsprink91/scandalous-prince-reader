@@ -8,7 +8,7 @@ for podcasts.
 Goal here is to just get the basic scaffolding up and running.
 
 - [x] Vite, Lit, Typescript
-- [ ] Router (https://github.com/thepassle/app-tools/blob/master/router/README.md)
+- [x] Router (https://github.com/thepassle/app-tools/blob/master/router/README.md)
 - [ ] Footer with nav (home, add)
 - [ ] CSS reset
 - [ ] Icon (could snag one from that one website I always do)
