@@ -5,6 +5,10 @@ import { router } from "./router";
 
 @customElement("app-index")
 export class AppIndex extends LitElement {
+  createRenderRoot(): HTMLElement | DocumentFragment {
+    return this;
+  }
+
   firstUpdated() {
     router.addEventListener("route-changed", () => {
       if ("startViewTransition" in document) {

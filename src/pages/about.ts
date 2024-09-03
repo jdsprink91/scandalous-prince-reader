@@ -4,8 +4,11 @@ import "../components/sp-footer";
 
 @customElement("sp-about-page")
 export class SpAboutPage extends LitElement {
+  createRenderRoot(): HTMLElement | DocumentFragment {
+    return this;
+  }
+
   render() {
-    return html`<p>this is an about page</p>
-      <sp-footer></sp-footer> `;
+    return html`<p>this is an about page</p>`;
   }
 }

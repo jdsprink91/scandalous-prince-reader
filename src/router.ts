@@ -1,35 +1,42 @@
 // docs for router https://github.com/thepassle/app-tools/blob/master/router/README.md
 
-import { html } from "lit";
+import { html, TemplateResult } from "lit";
 
 if (!(globalThis as any).URLPattern) {
   await import("urlpattern-polyfill");
 }
 
-import { Router } from "@thepassle/app-tools/router.js";
+import { Context, Router } from "@thepassle/app-tools/router.js";
 
 // @ts-ignore
 import { title } from "@thepassle/app-tools/router/plugins/title.js";
 
-import "./my-element";
+import "./pages/home";
 import "./pages/about";
 
 const baseURL: string = (import.meta as any).env.BASE_URL;
+
+function getPage(pageContent: TemplateResult) {
+  return function(context: Context) {
+    console.log(context);
+    return html`
+      ${pageContent}
+      <sp-footer></sp-footer>
+    `;
+  };
+}
 
 export const router = new Router({
   routes: [
     {
       path: resolveRouterPath(),
       title: "Home",
-      render: () =>
-        html`<my-element>
-          <h1>Scandalous Prince Reader</h1>
-        </my-element>`,
+      render: getPage(html`<sp-home-page></sp-home-page>`),
     },
     {
       path: resolveRouterPath("about"),
       title: "About",
-      render: () => html` <sp-about-page></sp-about-page> `,
+      render: getPage(html`<sp-about-page></sp-about-page>`),
     },
   ],
 });

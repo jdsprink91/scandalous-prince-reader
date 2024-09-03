@@ -3,7 +3,11 @@ import { customElement } from "lit/decorators.js";
 
 @customElement("sp-footer")
 export class SpFooter extends LitElement {
-  protected render(): unknown {
+  createRenderRoot(): HTMLElement | DocumentFragment {
+    return this;
+  }
+
+  render() {
     return html`
       <footer>
         <nav>

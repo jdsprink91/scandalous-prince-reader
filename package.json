@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "@vite-pwa/assets-generator": "^0.2.4",
+    "ts-lit-plugin": "^2.0.2",
     "typescript": "^5.2.2",
     "vite": "^5.2.10",
     "vite-plugin-pwa": "^0.20.0",
