@@ -10,10 +10,10 @@ Goal here is to just get the basic scaffolding up and running.
 - [x] Vite, Lit, Typescript
 - [x] Router (https://github.com/thepassle/app-tools/blob/master/router/README.md)
 - [x] Lit + neovim setup
-- [ ] add prettier and eslint officially
-- [ ] CSS reset
-- [ ] Icon (could snag one from that one website I always do)
+- [x] add prettier and eslint officially
+- [x] CSS reset
 - [ ] Fonts (I want a goofy one for the logo and some serious ones for the page)
+- [ ] Icon (could snag one from that one website I always do)
 - [ ] Footer with nav with no shadow DOM and can take params
 
 ## V0.0.2 checklist
