@@ -12,7 +12,7 @@ export class AppIndex extends LitElement {
   firstUpdated() {
     router.addEventListener("route-changed", () => {
       if ("startViewTransition" in document) {
-        (document as any).startViewTransition(() => this.requestUpdate());
+        document.startViewTransition(() => this.requestUpdate());
       } else {
         this.requestUpdate();
       }

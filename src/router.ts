@@ -2,22 +2,19 @@
 
 import { html, TemplateResult } from "lit";
 
-if (!(globalThis as any).URLPattern) {
+if (!("URLPattern" in globalThis)) {
   await import("urlpattern-polyfill");
 }
 
 import { Context, Router } from "@thepassle/app-tools/router.js";
 
-// @ts-ignore
-import { title } from "@thepassle/app-tools/router/plugins/title.js";
-
 import "./pages/home";
 import "./pages/about";
 
-const baseURL: string = (import.meta as any).env.BASE_URL;
+const baseURL: string = import.meta.env.BASE_URL;
 
 function getPage(pageContent: TemplateResult) {
-  return function(context: Context) {
+  return function (context: Context) {
     console.log(context);
     return html`
       ${pageContent}
