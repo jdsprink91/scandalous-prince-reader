@@ -20,6 +20,7 @@ Goal here is to just get the basic scaffolding up and running.
 
 - [x] Add landing page, feed page, add page
 - [ ] do some basic animation on landing page and include links to other pages
+  (don't care yet -- pushing this to later)
 
 ## V0.0.3 checklist
 
