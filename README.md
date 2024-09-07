@@ -14,9 +14,14 @@ Goal here is to just get the basic scaffolding up and running.
 - [x] CSS reset
 - [x] Fonts (I want a goofy one for the logo and some serious ones for the page)
 - [x] Icon (could snag one from that one website I always do)
-- [ ] Footer with nav with no shadow DOM and can take params
+- [x] Footer with nav with no shadow DOM and can take params
 
 ## V0.0.2 checklist
+
+- [ ] Add landing page, feed page, add page
+- [ ] do some basic animation on landing page and include links to other pages
+
+## V0.0.3 checklist
 
 This one is gonna be the first feature: add an RSS feed and display it back.
 
