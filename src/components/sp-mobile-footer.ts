@@ -2,8 +2,8 @@ import { html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { LiteDomLitElement } from "./lite-dom-lit-element";
 
-@customElement("sp-footer")
-export class SpFooter extends LiteDomLitElement {
+@customElement("sp-mobile-footer")
+export class SpMobileFooter extends LiteDomLitElement {
   @property({ type: String })
   pathname: string = "";
 
@@ -21,6 +21,7 @@ export class SpFooter extends LiteDomLitElement {
         <nav>
           <a href="/feed" class=${this.getClass("/feed")}>Feed</a>
           <a href="/add" class=${this.getClass("/add")}>Add</a>
+          <a href="/about" class=${this.getClass("/about")}>About</a>
         </nav>
       </footer>
     `;

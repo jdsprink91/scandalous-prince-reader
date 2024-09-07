@@ -9,16 +9,20 @@ if (!("URLPattern" in globalThis)) {
 import { Context, Router } from "@thepassle/app-tools/router.js";
 
 import "./pages/feed";
+import "./pages/add";
 import "./pages/about";
 import "./pages/landing";
+import "./components/sp-header";
+import "./components/sp-mobile-footer";
 
 const baseURL: string = import.meta.env.BASE_URL;
 
 function getPage(pageContent: TemplateResult) {
   return function (context: Context) {
     return html`
-      ${pageContent}
-      <sp-footer pathname=${context.url.pathname}></sp-footer>
+      <sp-header></sp-header>
+      <main>${pageContent}</main>
+      <sp-mobile-footer pathname=${context.url.pathname}></sp-mobile-footer>
     `;
   };
 }
@@ -41,6 +45,11 @@ export const router = new Router({
       path: resolveRouterPath("add"),
       title: "Add",
       render: getPage(html`<sp-add-page></sp-add-page>`),
+    },
+    {
+      path: resolveRouterPath("about"),
+      title: "About",
+      render: getPage(html`<sp-about-page></sp-about-page>`),
     },
   ],
 });
