@@ -3,9 +3,9 @@ import { customElement } from "lit/decorators.js";
 import "../components/sp-footer";
 import { LiteDomLitElement } from "../components/lite-dom-lit-element";
 
-@customElement("sp-about-page")
-export class SpAboutPage extends LiteDomLitElement {
+@customElement("sp-add-page")
+export class SpAddPage extends LiteDomLitElement {
   render() {
-    return html`<p>this is an about page</p>`;
+    return html`<p>this is where you can add a feed</p>`;
   }
 }

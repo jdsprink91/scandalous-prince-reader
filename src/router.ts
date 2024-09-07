@@ -8,8 +8,9 @@ if (!("URLPattern" in globalThis)) {
 
 import { Context, Router } from "@thepassle/app-tools/router.js";
 
-import "./pages/home";
+import "./pages/feed";
 import "./pages/about";
+import "./pages/landing";
 
 const baseURL: string = import.meta.env.BASE_URL;
 
@@ -25,14 +26,21 @@ function getPage(pageContent: TemplateResult) {
 export const router = new Router({
   routes: [
     {
-      path: resolveRouterPath(),
-      title: "Home",
-      render: getPage(html`<sp-home-page></sp-home-page>`),
+      path: resolveRouterPath(""),
+      title: "Landing",
+      render: () => {
+        return html`<sp-landing-page></sp-landing-page>`;
+      },
     },
     {
-      path: resolveRouterPath("about"),
-      title: "About",
-      render: getPage(html`<sp-about-page></sp-about-page>`),
+      path: resolveRouterPath("feed"),
+      title: "Feed",
+      render: getPage(html`<sp-feed-page></sp-feed-page>`),
+    },
+    {
+      path: resolveRouterPath("add"),
+      title: "Add",
+      render: getPage(html`<sp-add-page></sp-add-page>`),
     },
   ],
 });

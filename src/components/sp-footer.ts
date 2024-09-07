@@ -19,8 +19,8 @@ export class SpFooter extends LiteDomLitElement {
     return html`
       <footer>
         <nav>
-          <a href="/" class=${this.getClass("/")}>Home</a>
-          <a href="/about" class=${this.getClass("/about")}>About</a>
+          <a href="/feed" class=${this.getClass("/feed")}>Feed</a>
+          <a href="/add" class=${this.getClass("/add")}>Add</a>
         </nav>
       </footer>
     `;
