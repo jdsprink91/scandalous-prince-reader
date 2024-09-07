@@ -15,10 +15,9 @@ const baseURL: string = import.meta.env.BASE_URL;
 
 function getPage(pageContent: TemplateResult) {
   return function (context: Context) {
-    console.log(context);
     return html`
       ${pageContent}
-      <sp-footer></sp-footer>
+      <sp-footer pathname=${context.url.pathname}></sp-footer>
     `;
   };
 }

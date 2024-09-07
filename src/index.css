@@ -10,3 +10,11 @@ nav {
   display: flex;
   justify-content: space-between;
 }
+
+nav a {
+  color: gray;
+}
+
+nav a.active {
+  color: black;
+}
