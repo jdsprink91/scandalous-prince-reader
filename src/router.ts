@@ -3,7 +3,7 @@
 import { html, TemplateResult } from "lit";
 
 if (!("URLPattern" in globalThis)) {
-  await import("urlpattern-polyfill");
+  import("urlpattern-polyfill");
 }
 
 import { Context, Router } from "@thepassle/app-tools/router.js";
