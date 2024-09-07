@@ -1,10 +1,7 @@
 // docs for router https://github.com/thepassle/app-tools/blob/master/router/README.md
 
 import { html, TemplateResult } from "lit";
-
-if (!("URLPattern" in globalThis)) {
-  import("urlpattern-polyfill");
-}
+import "urlpattern-polyfill";
 
 import { Context, Router } from "@thepassle/app-tools/router.js";
 
