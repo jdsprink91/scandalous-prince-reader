@@ -18,6 +18,12 @@ p {
   margin: 0;
 }
 
+main {
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  padding-bottom: 3rem;
+}
+
 /**
  * app index
  */
@@ -61,6 +67,7 @@ footer {
   bottom: 0;
   width: 100%;
   padding: 1rem 2rem;
+  background: white;
 }
 
 footer nav {
