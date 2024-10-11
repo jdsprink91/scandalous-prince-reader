@@ -4,6 +4,7 @@ import { ifDefined } from "lit/directives/if-defined.js";
 import RssParser from "rss-parser";
 import { SHOP_TALK_FEED } from "./shop-talk-feed";
 import dayjs from "dayjs";
+import { setTempFeed } from "../database/tempStorage";
 
 //const TEST_RSS_FEED = "https://shoptalkshow.com/feed/podcast";
 
@@ -62,7 +63,7 @@ export class SpAddPage extends LitElement {
       justify-content: space-between;
     }
 
-    li > div > p {
+    li > div > date {
       margin-top: 0;
       margin-bottom: 0;
     }
@@ -95,6 +96,15 @@ export class SpAddPage extends LitElement {
     this._feed = rssFeedJson;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private _handlePlayClick(item: any) {
+    setTempFeed(this._feed);
+    const player = document.querySelector("sp-mobile-video-player");
+    if (player) {
+      player.setAttribute("play-item", item.guid);
+    }
+  }
+
   private _renderFeed() {
     if (this._feed) {
       return html`
@@ -112,8 +122,10 @@ export class SpAddPage extends LitElement {
                 <h2>${item.title}</h2>
                 <p>${item.contentSnippet}</p>
                 <div>
-                  <p>${dayjs(item.isoDate).format("MMM D, YYYY")}</p>
-                  <button>Play me somethin</button>
+                  <date>${dayjs(item.isoDate).format("MMM D, YYYY")}</date>
+                  <button @click=${() => this._handlePlayClick(item)}>
+                    Play me somethin
+                  </button>
                 </div>
               </li>`,
           )}
@@ -124,11 +136,6 @@ export class SpAddPage extends LitElement {
   }
 
   render() {
-    // so what do we need here?
-    // 1. we need an input for taking in the url -- done
-    // 2. we need a button to search -- done
-    // 3. we need to display the podcast things items
-    // 4. we need a button to add it
     // 5. figure out how to add to indexeddb
     return html`
       <form @submit=${this._handleSubmit}>
