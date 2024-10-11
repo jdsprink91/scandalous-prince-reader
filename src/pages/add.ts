@@ -32,20 +32,24 @@ export class SpAddPage extends LitElement {
     }
 
     li {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       list-style: none;
       border: 1px solid black;
       border-radius: 2px;
       height: 10rem;
-      padding-top: 0.5rem;
-      padding-left: 0.25rem;
-      padding-right: 0.25rem;
+      padding: 0.5rem 0.25rem;
     }
 
     li > h2 {
       font-size: 1.125rem;
+      margin: 0;
     }
 
     li > p {
+      flex-shrink: 2;
+      margin: 0;
       overflow: hidden;
       display: -webkit-box;
       -webkit-line-clamp: 2;
