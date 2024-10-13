@@ -11,7 +11,7 @@ import "./pages/about";
 import "./pages/landing";
 import "./components/sp-header";
 import "./components/sp-mobile-footer";
-import "./components/sp-mobile-video-player";
+import "./components/sp-mobile-audio-player";
 
 const baseURL: string = import.meta.env.BASE_URL;
 
@@ -20,7 +20,6 @@ function getPage(pageContent: TemplateResult) {
     return html`
       <sp-header></sp-header>
       <main>${pageContent}</main>
-      <sp-mobile-video-player></sp-mobile-video-player>
       <sp-mobile-footer pathname=${context.url.pathname}></sp-mobile-footer>
     `;
   };

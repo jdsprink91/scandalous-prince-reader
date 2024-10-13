@@ -1,12 +1,31 @@
 import { css, CSSResultGroup, html, LitElement } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
-import RssParser from "rss-parser";
 import { SHOP_TALK_FEED } from "./shop-talk-feed";
 import dayjs from "dayjs";
-import { setTempFeed } from "../database/tempStorage";
+import { Feed, FeedItem } from "../types/rss";
 
 //const TEST_RSS_FEED = "https://shoptalkshow.com/feed/podcast";
+
+function openAudioPlayer(feed: Feed, item: FeedItem) {
+  let player = document.querySelector("sp-mobile-audio-player");
+
+  if (!player) {
+    player = document.createElement("sp-mobile-audio-player");
+    document.body.appendChild(player);
+  }
+
+  if (!item.enclosure?.url) {
+    return null;
+  }
+
+  const imgSrc = item.itunes?.image ?? feed.image?.url;
+
+  player.setAttribute("show-name", feed.title!);
+  player.setAttribute("title", item.title!);
+  player.setAttribute("url", item.enclosure.url!);
+  player.setAttribute("img-src", imgSrc!);
+}
 
 @customElement("sp-add-page")
 export class SpAddPage extends LitElement {
@@ -78,7 +97,7 @@ export class SpAddPage extends LitElement {
   `;
 
   @state()
-  private _feed?: RssParser.Output<object> = SHOP_TALK_FEED;
+  private _feed?: Feed = SHOP_TALK_FEED;
 
   private async _handleSubmit(e: SubmitEvent) {
     e.preventDefault();
@@ -91,17 +110,14 @@ export class SpAddPage extends LitElement {
         q: rssFeedUrl,
       }),
     });
-    const rssFeedJson: RssParser.Output<object> = await rssFeedResponse.json();
+    const rssFeedJson: Feed = await rssFeedResponse.json();
 
     this._feed = rssFeedJson;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private _handlePlayClick(item: any) {
-    setTempFeed(this._feed);
-    const player = document.querySelector("sp-mobile-video-player");
-    if (player) {
-      player.setAttribute("play-item", item.guid);
+  private _handlePlayClick(item: FeedItem) {
+    if (this._feed) {
+      openAudioPlayer(this._feed, item);
     }
   }
 
