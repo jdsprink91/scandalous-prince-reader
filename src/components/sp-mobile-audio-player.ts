@@ -62,9 +62,6 @@ export class SpMobileAudioPlayer extends LitElement {
   private _toggleButton!: HTMLButtonElement;
 
   private _togglePlay() {
-    if (!this._toggleButton) {
-      return;
-    }
     if (this._audioPlayer.paused) {
       this._audioPlayer.play();
       this._toggleButton.textContent = "stahp";
