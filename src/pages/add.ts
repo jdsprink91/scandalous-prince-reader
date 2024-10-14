@@ -8,6 +8,7 @@ import { Feed, FeedItem } from "../types/rss";
 //const TEST_RSS_FEED = "https://shoptalkshow.com/feed/podcast";
 
 function openAudioPlayer(feed: Feed, item: FeedItem) {
+  const audio = document.querySelector("#my-audio");
   let player = document.querySelector("sp-mobile-audio-player");
 
   if (!player) {
@@ -15,7 +16,11 @@ function openAudioPlayer(feed: Feed, item: FeedItem) {
     document.body.appendChild(player);
   }
 
-  if (!item.enclosure?.url) {
+  if (!item.enclosure?.url || !audio) {
+    return null;
+  }
+
+  if (item.enclosure.url! === audio.getAttribute("src")) {
     return null;
   }
 
@@ -23,8 +28,10 @@ function openAudioPlayer(feed: Feed, item: FeedItem) {
 
   player.setAttribute("show-name", feed.title!);
   player.setAttribute("title", item.title!);
-  player.setAttribute("url", item.enclosure.url!);
   player.setAttribute("img-src", imgSrc!);
+
+  // this ALWAYS has to be last
+  audio.setAttribute("src", item.enclosure.url!);
 }
 
 @customElement("sp-add-page")
