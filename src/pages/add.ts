@@ -1,11 +1,8 @@
 import { css, CSSResultGroup, html, LitElement } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
-import { SHOP_TALK_FEED } from "./shop-talk-feed";
 import dayjs from "dayjs";
 import { Feed, FeedItem } from "../types/rss";
-
-//const TEST_RSS_FEED = "https://shoptalkshow.com/feed/podcast";
 
 function openAudioPlayer(feed: Feed, item: FeedItem) {
   const audio = document.querySelector("#my-audio");
@@ -104,7 +101,7 @@ export class SpAddPage extends LitElement {
   `;
 
   @state()
-  private _feed?: Feed = SHOP_TALK_FEED;
+  private _feed?: Feed;
 
   private async _handleSubmit(e: SubmitEvent) {
     e.preventDefault();
@@ -159,14 +156,9 @@ export class SpAddPage extends LitElement {
   }
 
   render() {
-    // 5. figure out how to add to indexeddb
     return html`
       <form @submit=${this._handleSubmit}>
-        <input
-          type="text"
-          name="rss-feed"
-          value="https://shoptalkshow.com/feed/podcast"
-        />
+        <input type="text" name="rss-feed" />
         <button type="submit">Search</button>
       </form>
       ${this._renderFeed()}

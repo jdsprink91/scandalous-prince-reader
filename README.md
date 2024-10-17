@@ -19,19 +19,30 @@ Goal here is to just get the basic scaffolding up and running.
 ## V0.0.2 checklist
 
 - [x] Add landing page, feed page, add page
-- [ ] do some basic animation on landing page and include links to other pages
-      (don't care yet -- pushing this to later)
 
 ## V0.0.3 checklist
 
-This one is gonna be the first feature: add an RSS feed and display it back.
+This one is gonna be the first feature: search for RSS feed, parse it, play
+something.
 
 - [x] Figure out how functions work so I can actually read an RSS feed. CORS
       issues are preventing this from being a FE only project.
 - [x] Get dev setup with functions.
-- [ ] display items from fetch
+- [x] display items from fetch
+- [x] add mobile listener
+- [x] document test feed
+- [ ] check to see if PWA is working
+
+## V0.0.4 checklist
+
+- [ ] make sure fetching and display items is secure
 - [ ] Figure out what indexeddb library to use (dixie looks promising)
 - [ ] How do we want to store rss feeds and items? Seems like this one will be
       non-trivial. I'm thinking we'd maybe need an entry for the rss feed info and
       then separate entries for the entries
 - [ ] Figure out lit and best way to display these
+
+# Testing
+
+Use this to test reader 
+(https://shoptalkshow.com/feed/podcast)[https://shoptalkshow.com/feed/podcast]
