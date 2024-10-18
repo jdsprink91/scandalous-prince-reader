@@ -1,4 +1,4 @@
-import { css, CSSResultGroup, html, LitElement } from "lit";
+import { css, CSSResultGroup, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import dayjs from "dayjs";
@@ -30,6 +30,16 @@ function openAudioPlayer(feed: Feed, item: FeedItem) {
   // this ALWAYS has to be last
   audio.setAttribute("src", item.enclosure.url!);
 }
+
+// what do I want to do here?
+// I really want to rehydrate when someone clicks on this
+// so what that means is saving the searched for feed and input
+// this means that I have to save it somewhere and rehydrate from state
+// I wonder if this can be done at the route level ...
+// OR should I save in local storage?
+// I mean ... I could even do this locally
+let input: string | null = null;
+let cachedFeed: Feed | null = null;
 
 @customElement("sp-add-page")
 export class SpAddPage extends LitElement {
@@ -101,22 +111,42 @@ export class SpAddPage extends LitElement {
   `;
 
   @state()
-  private _feed?: Feed;
+  private _loading: boolean = false;
+
+  @state()
+  private _error: boolean = false;
+
+  @state()
+  private _feed: Feed | null = cachedFeed;
 
   private async _handleSubmit(e: SubmitEvent) {
     e.preventDefault();
 
+    this._loading = true;
+    this._error = false;
     const formData = new FormData(e.target as HTMLFormElement);
     const rssFeedUrl = formData.get("rss-feed") as string;
-    const rssFeedResponse = await fetch("/api/read-rss-feed", {
-      method: "post",
-      body: JSON.stringify({
-        q: rssFeedUrl,
-      }),
-    });
-    const rssFeedJson: Feed = await rssFeedResponse.json();
-
-    this._feed = rssFeedJson;
+    input = rssFeedUrl;
+    try {
+      const rssFeedResponse = await fetch("/api/read-rss-feed", {
+        method: "post",
+        body: JSON.stringify({
+          q: rssFeedUrl,
+        }),
+      });
+      if (!rssFeedResponse.ok) {
+        throw new Error("whoops");
+      }
+      const rssFeedJson: Feed = await rssFeedResponse.json();
+      this._feed = rssFeedJson;
+      cachedFeed = rssFeedJson;
+    } catch {
+      input = "";
+      cachedFeed = null;
+      this._error = true;
+    } finally {
+      this._loading = false;
+    }
   }
 
   private _handlePlayClick(item: FeedItem) {
@@ -158,10 +188,12 @@ export class SpAddPage extends LitElement {
   render() {
     return html`
       <form @submit=${this._handleSubmit}>
-        <input type="text" name="rss-feed" />
+        <input type="text" name="rss-feed" value=${input ?? ""} />
         <button type="submit">Search</button>
       </form>
-      ${this._renderFeed()}
+      ${this._loading ? html`<p>loading ...</p>` : nothing}
+      ${this._error ? html`<p>ooops ...</p>` : nothing}
+      ${!this._loading && !this._error ? this._renderFeed() : nothing}
     `;
   }
 }
