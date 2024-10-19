@@ -1,6 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import catKing from "../assets/noun-cat-king-5675713.svg";
+import moustacheCat from "../assets/noun-moustache-cat-6113449.svg";
 
 @customElement("sp-header")
 export class SpHeader extends LitElement {
@@ -43,7 +43,7 @@ export class SpHeader extends LitElement {
   render() {
     return html`
       <div>
-        <img src=${catKing} height="100" width="100" />
+        <img src=${moustacheCat} height="100" width="100" />
         <p>Scandalous Prince Reader</p>
         <nav>
           <a href="/feed" class=${this.getClass("/feed")}>Feed</a>

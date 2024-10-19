@@ -31,18 +31,24 @@ something.
 - [x] display items from fetch
 - [x] add mobile listener
 - [x] document test feed
-- [ ] check to see if PWA is working
+- [x] check to see if PWA is working
+- [x] save state between pages (global state?)
+- [x] get manifest working so player looks good when phone is closed
+- [x] loading state
+- [x] error state
 
 ## V0.0.4 checklist
 
-- [ ] make sure fetching and display items is secure
-- [ ] Figure out what indexeddb library to use (dixie looks promising)
-- [ ] How do we want to store rss feeds and items? Seems like this one will be
-      non-trivial. I'm thinking we'd maybe need an entry for the rss feed info and
-      then separate entries for the entries
-- [ ] Figure out lit and best way to display these
+- [ ] Add RSS feed to indexeddb
+- [ ] Display feed on page 
+- [ ] Build page for individual feed item
+- [ ] Save state on whether item has been played and such
+
+## V0.0.5 checklist
+
+- [ ] Full page audio player
+- [ ] Add hour to mobile audio player
 
 # Testing
 
-Use this to test reader 
-(https://shoptalkshow.com/feed/podcast)[https://shoptalkshow.com/feed/podcast]
+Use this to test reader: https://shoptalkshow.com/feed/podcast

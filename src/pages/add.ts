@@ -1,11 +1,13 @@
-import { css, CSSResultGroup, html, LitElement } from "lit";
+import { css, CSSResultGroup, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import dayjs from "dayjs";
 import { Feed, FeedItem } from "../types/rss";
+import sleepyCat from "../assets/noun-sleepy-cat-6113435.svg";
+import "../components/sp-loading-spinner";
 
 function openAudioPlayer(feed: Feed, item: FeedItem) {
-  const audio = document.querySelector("#my-audio");
+  const audio = document.querySelector<HTMLAudioElement>("#my-audio");
   let player = document.querySelector("sp-mobile-audio-player");
 
   if (!player) {
@@ -29,7 +31,81 @@ function openAudioPlayer(feed: Feed, item: FeedItem) {
 
   // this ALWAYS has to be last
   audio.setAttribute("src", item.enclosure.url!);
+
+  // make sure the widget on lock screen looks good
+  if ("mediaSession" in navigator) {
+    navigator.mediaSession.metadata = new MediaMetadata({
+      title: item.title,
+      artist: feed.title,
+      artwork: [
+        {
+          src: imgSrc!,
+        },
+      ],
+    });
+
+    const actionHandlers: [
+      MediaSessionAction,
+      ((details: MediaSessionActionDetails) => void) | null,
+    ][] = [
+      [
+        "play",
+        async () => {
+          await audio.play();
+          navigator.mediaSession.playbackState = "playing";
+        },
+      ],
+      [
+        "pause",
+        async () => {
+          audio.pause();
+          navigator.mediaSession.playbackState = "paused";
+        },
+      ],
+      ["previoustrack", null],
+      ["nexttrack", null],
+      ["stop", null],
+      [
+        "seekbackward",
+        (details) => {
+          audio.currentTime = Math.max(
+            audio.currentTime - (details.seekOffset ?? 15),
+            0,
+          );
+        },
+      ],
+      [
+        "seekforward",
+        (details) => {
+          audio.currentTime = Math.min(
+            audio.currentTime + (details.seekOffset ?? 15),
+            audio.duration,
+          );
+        },
+      ],
+      [
+        "seekto",
+        (details) => {
+          audio.currentTime = details.seekTime ?? 0;
+        },
+      ],
+    ];
+
+    for (const [action, handler] of actionHandlers) {
+      try {
+        navigator.mediaSession.setActionHandler(action, handler);
+      } catch {
+        console.log(
+          `The media session action "${action}" is not supported yet.`,
+        );
+      }
+    }
+  }
 }
+
+// local state
+let input: string | null = null;
+let cachedFeed: Feed | null = null;
 
 @customElement("sp-add-page")
 export class SpAddPage extends LitElement {
@@ -53,6 +129,12 @@ export class SpAddPage extends LitElement {
     .podcast-info-container {
       display: flex;
       margin-top: 1rem;
+    }
+
+    .loading-error-container {
+      display: grid;
+      height: 200px;
+      place-items: center;
     }
 
     li {
@@ -101,28 +183,67 @@ export class SpAddPage extends LitElement {
   `;
 
   @state()
-  private _feed?: Feed;
+  private _loading: boolean = false;
+
+  @state()
+  private _error: boolean = false;
+
+  @state()
+  private _feed: Feed | null = cachedFeed;
 
   private async _handleSubmit(e: SubmitEvent) {
     e.preventDefault();
 
+    this._loading = true;
+    this._error = false;
     const formData = new FormData(e.target as HTMLFormElement);
     const rssFeedUrl = formData.get("rss-feed") as string;
-    const rssFeedResponse = await fetch("/api/read-rss-feed", {
-      method: "post",
-      body: JSON.stringify({
-        q: rssFeedUrl,
-      }),
-    });
-    const rssFeedJson: Feed = await rssFeedResponse.json();
-
-    this._feed = rssFeedJson;
+    input = rssFeedUrl;
+    try {
+      const rssFeedResponse = await fetch("/api/read-rss-feed", {
+        method: "post",
+        body: JSON.stringify({
+          q: rssFeedUrl,
+        }),
+      });
+      if (!rssFeedResponse.ok) {
+        throw new Error("whoops");
+      }
+      const rssFeedJson: Feed = await rssFeedResponse.json();
+      this._feed = rssFeedJson;
+      cachedFeed = rssFeedJson;
+    } catch {
+      input = "";
+      cachedFeed = null;
+      this._error = true;
+    } finally {
+      this._loading = false;
+    }
   }
 
   private _handlePlayClick(item: FeedItem) {
     if (this._feed) {
       openAudioPlayer(this._feed, item);
     }
+  }
+
+  private _renderLoading() {
+    return html`
+      <div class="loading-error-container">
+        <sp-loading-spinner></sp-loading-spinner>
+      </div>
+    `;
+  }
+
+  private _renderError() {
+    return html`
+      <div class="loading-error-container">
+        <div>
+          <img src=${sleepyCat} height="200" width="200" />
+          <p>Could not find or parse your feed</p>
+        </div>
+      </div>
+    `;
   }
 
   private _renderFeed() {
@@ -158,10 +279,12 @@ export class SpAddPage extends LitElement {
   render() {
     return html`
       <form @submit=${this._handleSubmit}>
-        <input type="text" name="rss-feed" />
+        <input type="text" name="rss-feed" value=${input ?? ""} />
         <button type="submit">Search</button>
       </form>
-      ${this._renderFeed()}
+      ${this._loading ? this._renderLoading() : nothing}
+      ${this._error ? this._renderError() : nothing}
+      ${!this._loading && !this._error ? this._renderFeed() : nothing}
     `;
   }
 }
