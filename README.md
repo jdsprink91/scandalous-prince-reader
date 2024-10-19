@@ -33,7 +33,7 @@ something.
 - [x] document test feed
 - [x] check to see if PWA is working
 - [x] save state between pages (global state?)
-- [ ] get manifest working so player looks good when phone is closed
+- [x] get manifest working so player looks good when phone is closed
 - [x] loading state
 - [x] error state
 
