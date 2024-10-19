@@ -257,23 +257,22 @@ export class SpAddPage extends LitElement {
           </div>
         </div>
         <ul>
-          ${this._feed.items.map(
-            (item) =>
-              html`<li>
-                <h2>${item.title}</h2>
-                <p>${item.contentSnippet}</p>
-                <div>
-                  <date>${dayjs(item.isoDate).format("MMM D, YYYY")}</date>
-                  <button @click=${() => this._handlePlayClick(item)}>
-                    Play me somethin
-                  </button>
-                </div>
-              </li>`,
-          )}
+          ${this._feed.items.map((item) => {
+            return html` <li>
+              <h2>${item.title}</h2>
+              <p>${item.contentSnippet}</p>
+              <div>
+                <date>${dayjs(item.isoDate).format("MMM D, YYYY")}</date>
+                <button @click=${() => this._handlePlayClick(item)}>
+                  Play me somethin
+                </button>
+              </div>
+            </li>`;
+          })}
         </ul>`;
     }
 
-    return html`<p>got nothin</p>`;
+    return nothing;
   }
 
   render() {
