@@ -3,6 +3,7 @@ import { customElement, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import dayjs from "dayjs";
 import { Feed, FeedItem } from "../types/rss";
+import "../components/sp-loading-spinner";
 
 function openAudioPlayer(feed: Feed, item: FeedItem) {
   const audio = document.querySelector("#my-audio");
@@ -63,6 +64,12 @@ export class SpAddPage extends LitElement {
     .podcast-info-container {
       display: flex;
       margin-top: 1rem;
+    }
+
+    .loading-container {
+      display: grid;
+      height: 200px;
+      place-items: center;
     }
 
     li {
@@ -155,6 +162,14 @@ export class SpAddPage extends LitElement {
     }
   }
 
+  private _renderLoading() {
+    return html`
+      <div class="loading-container">
+        <sp-loading-spinner></sp-loading-spinner>
+      </div>
+    `;
+  }
+
   private _renderFeed() {
     if (this._feed) {
       return html`
@@ -191,7 +206,7 @@ export class SpAddPage extends LitElement {
         <input type="text" name="rss-feed" value=${input ?? ""} />
         <button type="submit">Search</button>
       </form>
-      ${this._loading ? html`<p>loading ...</p>` : nothing}
+      ${this._loading ? this._renderLoading() : nothing}
       ${this._error ? html`<p>ooops ...</p>` : nothing}
       ${!this._loading && !this._error ? this._renderFeed() : nothing}
     `;

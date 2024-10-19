@@ -34,7 +34,7 @@ something.
 - [x] check to see if PWA is working
 - [x] save state between pages (global state?)
 - [ ] get manifest working so player looks good when phone is closed
-- [ ] loading state
+- [x] loading state
 - [ ] error state
 
 ## V0.0.4 checklist
