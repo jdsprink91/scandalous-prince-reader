@@ -57,7 +57,7 @@ function openAudioPlayer(feed: Feed, item: FeedItem) {
       ],
       [
         "pause",
-        async () => {
+        () => {
           audio.pause();
           navigator.mediaSession.playbackState = "paused";
         },

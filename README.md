@@ -51,4 +51,6 @@ something.
 
 # Testing
 
-Use this to test reader: https://shoptalkshow.com/feed/podcast
+Some test urls
+- https://shoptalkshow.com/feed/podcast
+- https://feed.podbean.com/demolisten/feed.xml
