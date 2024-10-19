@@ -3,6 +3,7 @@ import { customElement, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import dayjs from "dayjs";
 import { Feed, FeedItem } from "../types/rss";
+import sleepyCat from "../assets/noun-sleepy-cat-6113435.svg";
 import "../components/sp-loading-spinner";
 
 function openAudioPlayer(feed: Feed, item: FeedItem) {
@@ -32,13 +33,7 @@ function openAudioPlayer(feed: Feed, item: FeedItem) {
   audio.setAttribute("src", item.enclosure.url!);
 }
 
-// what do I want to do here?
-// I really want to rehydrate when someone clicks on this
-// so what that means is saving the searched for feed and input
-// this means that I have to save it somewhere and rehydrate from state
-// I wonder if this can be done at the route level ...
-// OR should I save in local storage?
-// I mean ... I could even do this locally
+// local state
 let input: string | null = null;
 let cachedFeed: Feed | null = null;
 
@@ -66,7 +61,7 @@ export class SpAddPage extends LitElement {
       margin-top: 1rem;
     }
 
-    .loading-container {
+    .loading-error-container {
       display: grid;
       height: 200px;
       place-items: center;
@@ -164,8 +159,19 @@ export class SpAddPage extends LitElement {
 
   private _renderLoading() {
     return html`
-      <div class="loading-container">
+      <div class="loading-error-container">
         <sp-loading-spinner></sp-loading-spinner>
+      </div>
+    `;
+  }
+
+  private _renderError() {
+    return html`
+      <div class="loading-error-container">
+        <div>
+          <img src=${sleepyCat} height="200" width="200" />
+          <p>Could not find or parse your feed</p>
+        </div>
       </div>
     `;
   }
@@ -207,7 +213,7 @@ export class SpAddPage extends LitElement {
         <button type="submit">Search</button>
       </form>
       ${this._loading ? this._renderLoading() : nothing}
-      ${this._error ? html`<p>ooops ...</p>` : nothing}
+      ${this._error ? this._renderError() : nothing}
       ${!this._loading && !this._error ? this._renderFeed() : nothing}
     `;
   }

@@ -153,7 +153,7 @@ export class SpMobileAudioPlayer extends LitElement {
         </div>
         <div class="progress-container">
           <time>${getSecondsToTimeStr(secondsPlayed)}</time>
-          <progress .max=${this._duration} .value=${this._currentTime}>
+          <progress .max=${totalSeconds} .value=${secondsPlayed}>
             ${this._currentTime}
           </progress>
           <time>-${getSecondsToTimeStr(secondsLeft)}</time>
