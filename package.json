@@ -15,6 +15,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@lit/task": "^1.0.1",
     "@netlify/functions": "^2.8.1",
     "@thepassle/app-tools": "^0.9.12",
     "dayjs": "^1.11.13",

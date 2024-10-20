@@ -19,7 +19,15 @@ export async function addFeedToSPDB(feed: Feed) {
   return tx.done;
 }
 
-export async function getAllFeeds() {
+export async function getAllFeedItems() {
   const db = await getSPDB();
-  return db.getAll("feed");
+  const feedItems = await db.getAll("feed-item");
+  const feeds = [...new Set(feedItems.map((feedItem) => feedItem.feedLink))];
+  console.log(feeds);
+  return feedItems;
+}
+
+export async function getFeed(link: string) {
+  const db = await getSPDB();
+  return db.get("feed", link);
 }

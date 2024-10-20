@@ -1,11 +1,9 @@
 import { css, CSSResultGroup, html, LitElement, nothing } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
-import dayjs from "dayjs";
-import { Feed, FeedItem } from "../types/rss";
+import { Feed } from "../types/rss";
 import sleepyCat from "../assets/noun-sleepy-cat-6113435.svg";
 import "../components/sp-loading-spinner";
-import { openAudioPlayer } from "../actions/audio";
 import { addFeedToSPDB } from "../actions/feed";
 
 // local state
@@ -40,50 +38,6 @@ export class SpAddPage extends LitElement {
       display: grid;
       height: 200px;
       place-items: center;
-    }
-
-    li {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      list-style: none;
-      border: 1px solid black;
-      border-radius: 2px;
-      height: 10rem;
-      padding: 0.5rem 0.25rem;
-    }
-
-    li > h2 {
-      font-size: 1.125rem;
-      margin: 0;
-    }
-
-    li > p {
-      flex-shrink: 2;
-      margin: 0;
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-    }
-
-    li > div {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    li > div > date {
-      margin-top: 0;
-      margin-bottom: 0;
-    }
-
-    li + li {
-      margin-top: 0.25rem;
-    }
-
-    ul {
-      padding-left: 0;
     }
   `;
 
@@ -135,12 +89,6 @@ export class SpAddPage extends LitElement {
     }
   }
 
-  private _handlePlayClick(item: FeedItem) {
-    if (this._feed) {
-      openAudioPlayer(this._feed, item);
-    }
-  }
-
   private _renderLoading() {
     return html`
       <div class="loading-error-container">
@@ -171,20 +119,7 @@ export class SpAddPage extends LitElement {
           </div>
           <button @click=${this._handleAdd}>Add Feed</button>
         </div>
-        <ul>
-          ${this._feed.items.map((item) => {
-            return html` <li>
-              <h2>${item.title}</h2>
-              <p>${item.contentSnippet}</p>
-              <div>
-                <date>${dayjs(item.isoDate).format("MMM D, YYYY")}</date>
-                <button @click=${() => this._handlePlayClick(item)}>
-                  Play me somethin
-                </button>
-              </div>
-            </li>`;
-          })}
-        </ul>`;
+        `;
     }
 
     return nothing;

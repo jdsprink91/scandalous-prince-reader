@@ -1,6 +1,7 @@
-import { Feed, FeedItem } from "../types/rss";
+import { FeedTable } from "../types/database";
+import { FeedItem } from "../types/rss";
 
-export function openAudioPlayer(feed: Feed, item: FeedItem) {
+export function openAudioPlayer(feed: FeedTable, item: FeedItem) {
   const audio = document.querySelector<HTMLAudioElement>("#my-audio");
   let player = document.querySelector("sp-mobile-audio-player");
 

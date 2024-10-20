@@ -1,13 +1,13 @@
 import { DBSchema } from "idb";
 import { Feed, FeedItem } from "./rss";
 
-type FeedTable = Omit<Feed, "items">;
+export type FeedTable = Omit<Feed, "items">;
 
-interface FeedItemTable extends FeedItem {
+export interface FeedItemTableRow extends FeedItem {
   feedLink: string;
 }
 
-interface FeedItemPlayback {
+interface FeedItemPlaybackRow {
   feedItemGuid: string;
   played: boolean;
   duration: number;
@@ -20,10 +20,10 @@ export interface SPDB extends DBSchema {
   };
   "feed-item": {
     key: string;
-    value: FeedItemTable;
+    value: FeedItemTableRow;
   };
   "feed-item-playback": {
     key: string;
-    value: FeedItemPlayback;
+    value: FeedItemPlaybackRow;
   };
 }
