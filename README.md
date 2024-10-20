@@ -39,18 +39,23 @@ something.
 
 ## V0.0.4 checklist
 
-- [ ] Add RSS feed to indexeddb
-- [ ] Display feed on page 
+- [x] Move some code around to make it easier to work with
+- [x] Add rss feed and items to indexeddb
+- [ ] delete rss feed
+- [ ] do some checks to make sure that our feed has fields required by db
+- [ ] Display feed on page
+- [ ] Change Add page to just include feed info, no actual playback.
 - [ ] Build page for individual feed item
-- [ ] Save state on whether item has been played and such
 
 ## V0.0.5 checklist
 
+- [ ] figure out state needed for playing items (played, save last place, etc)
 - [ ] Full page audio player
 - [ ] Add hour to mobile audio player
 
 # Testing
 
 Some test urls
+
 - https://shoptalkshow.com/feed/podcast
 - https://feed.podbean.com/demolisten/feed.xml

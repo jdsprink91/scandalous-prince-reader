@@ -19,6 +19,7 @@
     "@thepassle/app-tools": "^0.9.12",
     "dayjs": "^1.11.13",
     "dexie": "^4.0.8",
+    "idb": "^8.0.0",
     "lit": "^3.1.3",
     "modern-normalize": "^3.0.0",
     "rss-parser": "^3.13.0",
