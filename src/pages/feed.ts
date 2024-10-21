@@ -1,10 +1,13 @@
-import { css, CSSResultGroup, html, LitElement } from "lit";
+import { css, CSSResultGroup, html, LitElement, nothing } from "lit";
 import { Task } from "@lit/task";
 import { customElement } from "lit/decorators.js";
-import { getAllFeedItems, getFeed } from "../actions/feed";
-import { openAudioPlayer } from "../actions/audio";
-import dayjs from "dayjs";
-import { FeedItemTableRow } from "../types/database";
+import { FeedItemTableRow, FeedTable } from "../types/database";
+import { getSPDB } from "../actions/database";
+import "../components/sp-feed-item-card";
+
+interface FeedItemWithFeedParent extends FeedItemTableRow {
+  feed: FeedTable;
+}
 
 @customElement("sp-feed-page")
 export class SpFeedPage extends LitElement {
@@ -15,46 +18,6 @@ export class SpFeedPage extends LitElement {
       place-items: center;
     }
 
-    li {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      list-style: none;
-      border: 1px solid black;
-      border-radius: 2px;
-      height: 10rem;
-      padding: 0.5rem 0.25rem;
-    }
-
-    li > h2 {
-      font-size: 1.125rem;
-      margin: 0;
-    }
-
-    li > p {
-      flex-shrink: 2;
-      margin: 0;
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-    }
-
-    li > div {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    li > div > date {
-      margin-top: 0;
-      margin-bottom: 0;
-    }
-
-    li + li {
-      margin-top: 0.25rem;
-    }
-
     ul {
       padding-left: 0;
     }
@@ -62,7 +25,25 @@ export class SpFeedPage extends LitElement {
 
   private _feedTask = new Task(this, {
     task: async () => {
-      return getAllFeedItems();
+      const db = await getSPDB();
+      const feedItems = await db.getAll("feed-item");
+      const feeds = await db.getAll("feed");
+      const feedsByKey = feeds.reduce(
+        (acc, feed) => {
+          return {
+            [feed.link!]: feed,
+            ...acc,
+          };
+        },
+        {} as Record<string, FeedTable>,
+      );
+
+      return feedItems.map((feedItem) => {
+        return {
+          feed: feedsByKey[feedItem.feedLink],
+          ...feedItem,
+        };
+      }) as FeedItemWithFeedParent[];
     },
     args: () => [],
   });
@@ -75,26 +56,29 @@ export class SpFeedPage extends LitElement {
     `;
   }
 
-  private async _handlePlayClick(item: FeedItemTableRow) {
-    const feed = await getFeed(item.feedLink);
-    if (feed) {
-      openAudioPlayer(feed, item);
-    }
-  }
-
-  private _renderFeed = (feedItems: FeedItemTableRow[]) => {
-    return html` <ul>
+  private _renderFeed = (feedItems: FeedItemWithFeedParent[]) => {
+    return html`<ul>
       ${feedItems.map((item) => {
-        return html` <li>
-          <h2>${item.title}</h2>
-          <p>${item.contentSnippet}</p>
-          <div>
-            <date>${dayjs(item.isoDate).format("MMM D, YYYY")}</date>
-            <button @click=${() => this._handlePlayClick(item)}>
-              Play me somethin
-            </button>
-          </div>
-        </li>`;
+        const imgSrc = item.itunes?.image ?? item.feed.image?.url;
+        if (
+          !item.title ||
+          !item.contentSnippet ||
+          !item.isoDate ||
+          !item.feed.title ||
+          !item.enclosure ||
+          !imgSrc
+        ) {
+          return nothing;
+        }
+
+        return html`<sp-feed-item-card
+          title=${item.title!}
+          content-snippet=${item.contentSnippet!}
+          date-added=${item.isoDate!}
+          show-name=${item.feed.title!}
+          img-src=${imgSrc}
+          audio-src=${item.enclosure.url!}
+        ></sp-feed-item-card>`;
       })}
     </ul>`;
   };

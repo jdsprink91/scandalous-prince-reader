@@ -41,11 +41,12 @@ something.
 
 - [x] Move some code around to make it easier to work with
 - [x] Add rss feed and items to indexeddb
-- [ ] delete rss feed
+- [ ] Delete rss feed
 - [ ] do some checks to make sure that our feed has fields required by db
 - [ ] Display feed on page
 - [ ] Change Add page to just include feed info, no actual playback.
 - [ ] Build page for individual feed item
+- [ ] Get rid of `LiteDomLitElement`
 
 ## V0.0.5 checklist
 

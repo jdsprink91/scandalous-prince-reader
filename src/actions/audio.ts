@@ -1,8 +1,14 @@
-import { FeedTable } from "../types/database";
-import { FeedItem } from "../types/rss";
-
-export function openAudioPlayer(feed: FeedTable, item: FeedItem) {
+export function openAudioPlayer(
+  showName: string,
+  title: string,
+  imgSrc: string,
+  audioSrc: string,
+) {
   const audio = document.querySelector<HTMLAudioElement>("#my-audio");
+  if (!audio) {
+    return null;
+  }
+
   let player = document.querySelector("sp-mobile-audio-player");
 
   if (!player) {
@@ -10,28 +16,17 @@ export function openAudioPlayer(feed: FeedTable, item: FeedItem) {
     document.body.appendChild(player);
   }
 
-  if (!item.enclosure?.url || !audio) {
-    return null;
-  }
+  player.setAttribute("show-name", showName);
+  player.setAttribute("title", title);
+  player.setAttribute("img-src", imgSrc);
 
-  if (item.enclosure.url! === audio.getAttribute("src")) {
-    return null;
-  }
-
-  const imgSrc = item.itunes?.image ?? feed.image?.url;
-
-  player.setAttribute("show-name", feed.title!);
-  player.setAttribute("title", item.title!);
-  player.setAttribute("img-src", imgSrc!);
-
-  // this ALWAYS has to be last
-  audio.setAttribute("src", item.enclosure.url!);
+  audio.setAttribute("src", audioSrc);
 
   // make sure the widget on lock screen looks good
   if ("mediaSession" in navigator) {
     navigator.mediaSession.metadata = new MediaMetadata({
-      title: item.title,
-      artist: feed.title,
+      title: title,
+      artist: showName,
       artwork: [
         {
           src: imgSrc!,

@@ -4,7 +4,7 @@ import { ifDefined } from "lit/directives/if-defined.js";
 import { Feed } from "../types/rss";
 import sleepyCat from "../assets/noun-sleepy-cat-6113435.svg";
 import "../components/sp-loading-spinner";
-import { addFeedToSPDB } from "../actions/feed";
+import { addFeed } from "../actions/feed";
 
 // local state
 let input: string | null = null;
@@ -85,7 +85,7 @@ export class SpAddPage extends LitElement {
 
   private async _handleAdd() {
     if (this._feed) {
-      await addFeedToSPDB(this._feed);
+      await addFeed(this._feed);
     }
   }
 
