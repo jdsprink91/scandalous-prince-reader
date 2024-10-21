@@ -1,9 +1,10 @@
-import { css, CSSResultGroup, html, LitElement, nothing } from "lit";
+import { css, CSSResultGroup, html, LitElement } from "lit";
 import { Task } from "@lit/task";
 import { customElement } from "lit/decorators.js";
 import { FeedItemTableRow, FeedTable } from "../types/database";
 import { getSPDB } from "../actions/database";
-import "../components/sp-feed-item-card";
+import "../components/sp-feed-list";
+import { FeedItemCard } from "../components/sp-feed-list";
 
 interface FeedItemWithFeedParent extends FeedItemTableRow {
   feed: FeedTable;
@@ -16,10 +17,6 @@ export class SpFeedPage extends LitElement {
       display: grid;
       height: 200px;
       place-items: center;
-    }
-
-    ul {
-      padding-left: 0;
     }
   `;
 
@@ -57,30 +54,30 @@ export class SpFeedPage extends LitElement {
   }
 
   private _renderFeed = (feedItems: FeedItemWithFeedParent[]) => {
-    return html`<ul>
-      ${feedItems.map((item) => {
-        const imgSrc = item.itunes?.image ?? item.feed.image?.url;
+    const feedItemCards: FeedItemCard[] = feedItems
+      .map((feedItem) => {
+        const imgSrc = feedItem.itunes?.image ?? feedItem.feed.image?.url;
         if (
-          !item.title ||
-          !item.contentSnippet ||
-          !item.isoDate ||
-          !item.feed.title ||
-          !item.enclosure ||
+          !feedItem.title ||
+          !feedItem.contentSnippet ||
+          !feedItem.isoDate ||
+          !feedItem.feed.title ||
+          !feedItem.enclosure ||
           !imgSrc
         ) {
-          return nothing;
+          return null;
         }
-
-        return html`<sp-feed-item-card
-          title=${item.title!}
-          content-snippet=${item.contentSnippet!}
-          date-added=${item.isoDate!}
-          show-name=${item.feed.title!}
-          img-src=${imgSrc}
-          audio-src=${item.enclosure.url!}
-        ></sp-feed-item-card>`;
-      })}
-    </ul>`;
+        return {
+          title: feedItem.title,
+          contentSnippet: feedItem.contentSnippet,
+          dateAdded: feedItem.isoDate,
+          showName: feedItem.feed.title,
+          audioSrc: feedItem.enclosure.url!,
+          imgSrc,
+        };
+      })
+      .filter((card) => card !== null);
+    return html` <sp-feed-list .feedItems=${feedItemCards}></sp-feed-list> `;
   };
 
   render() {
