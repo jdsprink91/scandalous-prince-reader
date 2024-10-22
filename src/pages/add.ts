@@ -1,5 +1,5 @@
 import { css, CSSResultGroup, html, LitElement, nothing } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 import { Feed } from "../types/rss";
 import sleepyCat from "../assets/noun-sleepy-cat-6113435.svg";
@@ -38,11 +38,8 @@ export class SpAddPage extends LitElement {
     }
   `;
 
-  @state()
-  private _feedUrl: string | null = null;
-
   private _parseFeed = new Task(this, {
-    task: async ([feedUrl]) => {
+    task: async ([feedUrl]: [string]) => {
       if (feedUrl) {
         const rssFeedResponse = await fetch("/api/read-rss-feed", {
           method: "post",
@@ -58,13 +55,13 @@ export class SpAddPage extends LitElement {
 
       return null;
     },
-    args: () => [this._feedUrl],
   });
 
   private _handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
-    this._feedUrl = formData.get("rss-feed") as string;
+    const feedUrl = formData.get("rss-feed") as string;
+    this._parseFeed.run([feedUrl]);
   };
 
   private _handleAdd = async (feed: Feed) => {
@@ -98,6 +95,7 @@ export class SpAddPage extends LitElement {
             <p>${feed.title}</p>
             <p>${feed.description}</p>
           </div>
+          <!-- TODO: make this its own component so I can use a task here -->
           <button @click=${() => this._handleAdd(feed)}>Add Feed</button>
         </div>
         `;
@@ -109,15 +107,12 @@ export class SpAddPage extends LitElement {
         <input type="text" name="rss-feed" />
         <button type="submit">Search</button>
       </form>
-      ${this._feedUrl !== null
-        ? html`
-            ${this._parseFeed.render({
-              pending: this._renderLoading,
-              error: this._renderError,
-              complete: this._renderFeed,
-            })}
-          `
-        : nothing}
+      ${this._parseFeed.render({
+        pending: this._renderLoading,
+        error: this._renderError,
+        complete: this._renderFeed,
+        initial: () => nothing,
+      })}
     `;
   }
 }
