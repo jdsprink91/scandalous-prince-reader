@@ -28,13 +28,16 @@ export class SpAddPage extends LitElement {
 
     .podcast-info-container {
       display: flex;
+      align-items: center;
       margin-top: 1rem;
     }
 
-    .loading-error-container {
-      display: grid;
-      height: 200px;
-      place-items: center;
+    .title-description-container {
+      margin-left: 0.5rem;
+    }
+
+    .action-container {
+      margin-left: auto;
     }
   `;
 
@@ -57,6 +60,12 @@ export class SpAddPage extends LitElement {
     },
   });
 
+  private _addFeed = new Task(this, {
+    task: async ([feed]: [Feed]) => {
+      return addFeed(feed);
+    },
+  });
+
   private _handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
@@ -64,8 +73,8 @@ export class SpAddPage extends LitElement {
     this._parseFeed.run([feedUrl]);
   };
 
-  private _handleAdd = async (feed: Feed) => {
-    await addFeed(feed);
+  private _handleAdd = (feed: Feed) => {
+    this._addFeed.run([feed]);
   };
 
   private _renderError = () => {
@@ -83,12 +92,21 @@ export class SpAddPage extends LitElement {
     return html`
         <div class="podcast-info-container">
           <img heigh="100" width="100" src="${ifDefined(feed.image?.url)}"></img>
-          <div>
+          <div class="title-description-container">
             <p>${feed.title}</p>
             <p>${feed.description}</p>
           </div>
-          <!-- TODO: see if I can also make this a task for better loading states -->
-          <button @click=${() => this._handleAdd(feed)}>Add Feed</button>
+          <div class="action-container">
+          ${this._addFeed.render({
+            initial: () => html`
+              <button @click=${() => this._handleAdd(feed)}>Add Feed</button>
+            `,
+            complete: () => {
+              // TODO: add toast
+              return html`<p>Added!</p>`;
+            },
+          })}
+    </div>
         </div>
         `;
   };
