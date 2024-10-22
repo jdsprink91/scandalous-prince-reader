@@ -54,6 +54,37 @@ export class SpShowsPage extends LitElement {
     args: () => [],
   });
 
+  private _deleteShow = async (show: FeedTableRow) => {
+    const db = await getSPDB();
+    const tx = db.transaction(
+      ["feed", "feed-item", "feed-item-playback"],
+      "readwrite",
+    );
+    // delete all feed metadata items
+    const feedItemPlaybackStore = tx.objectStore("feed-item-playback");
+    const fipIndex = feedItemPlaybackStore.index("by-feed-link");
+    for await (const cursor of fipIndex.iterate(show.link)) {
+      cursor.delete();
+    }
+
+    // delete all feed items
+    const feedItemObjectStore = tx.objectStore("feed-item");
+    const index = feedItemObjectStore.index("by-feed-link");
+    for await (const cursor of index.iterate(show.link)) {
+      cursor.delete();
+    }
+
+    // delete feed
+    const feedObjectStore = tx.objectStore("feed");
+    feedObjectStore.delete(show.link!);
+
+    // tell everyone that we're done
+    await tx.done;
+
+    // pull latest and greatest (might need to redo this)
+    this._showsTask.run();
+  };
+
   private _renderShows = (feeds: FeedTableRow[]) => {
     return html`
       <div class="title-action-container">
@@ -67,13 +98,12 @@ export class SpShowsPage extends LitElement {
             <div class="show-title-info-container">
               <h2>${feed.title}</h2>
               <div class="actions-container">
-                <button>Delete</button>
+                <button @click=${() => this._deleteShow(feed)}>Delete</button>
               </div>
             </div>
           </li>`;
         })}
       </ul>
-      <sp-add-feed></sp-add-feed>
     `;
   };
 

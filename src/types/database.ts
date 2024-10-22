@@ -9,6 +9,7 @@ export interface FeedItemTableRow extends Omit<FeedItem, "isoDate"> {
 }
 
 interface FeedItemPlaybackRow {
+  feedLink: string;
   feedItemGuid: string;
   played: boolean;
   duration: number;
@@ -24,10 +25,15 @@ export interface SPDB extends DBSchema {
     value: FeedItemTableRow;
     indexes: {
       "by-iso-date": Date;
+      "by-feed-link": string;
     };
   };
   "feed-item-playback": {
     key: string;
     value: FeedItemPlaybackRow;
+    indexes: {
+      "by-feed-link": string;
+      "by-feed-item-guid": string;
+    };
   };
 }

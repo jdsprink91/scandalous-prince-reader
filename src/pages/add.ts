@@ -10,7 +10,7 @@ import { addFeed } from "../actions/feed";
 let input: string | null = null;
 let cachedFeed: Feed | null = null;
 
-@customElement("sp-add-page")
+@customElement("sp-add-feed-page")
 export class SpAddPage extends LitElement {
   static styles?: CSSResultGroup | undefined = css`
     :host {
