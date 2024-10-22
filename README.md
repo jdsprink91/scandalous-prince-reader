@@ -41,14 +41,19 @@ something.
 
 - [x] Move some code around to make it easier to work with
 - [x] Add rss feed and items to indexeddb
-- [ ] Delete rss feed
+- [x] Display feed on page
+- [ ] add shows page. List shows and add new one
+- [ ] delete rss feed
+
+## V0.0.5 checklist
+
+- [ ] backup image for everything
+- [ ] get play and pause button
 - [ ] do some checks to make sure that our feed has fields required by db
-- [ ] Display feed on page
-- [ ] Change Add page to just include feed info, no actual playback.
 - [ ] Build page for individual feed item
 - [ ] Get rid of `LiteDomLitElement`
 
-## V0.0.5 checklist
+## V0.0.6 checklist
 
 - [ ] figure out state needed for playing items (played, save last place, etc)
 - [ ] Full page audio player

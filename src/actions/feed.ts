@@ -12,7 +12,13 @@ export async function addFeed(feed: Feed) {
   const feedItemObjectStore = tx.objectStore("feed-item");
   await Promise.all(
     items.map((item) => {
-      return feedItemObjectStore.put({ feedLink: otherFeed.link!, ...item });
+      const { isoDate, ...restItem } = item;
+
+      return feedItemObjectStore.put({
+        feedLink: otherFeed.link!,
+        isoDate: isoDate ? new Date(isoDate) : undefined,
+        ...restItem,
+      });
     }),
   );
 

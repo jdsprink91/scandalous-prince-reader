@@ -8,7 +8,10 @@ export async function getSPDB(): Promise<IDBPDatabase<SPDB>> {
     spdb = await openDB<SPDB>("sp-db", 1, {
       upgrade(db) {
         db.createObjectStore("feed", { keyPath: "link" });
-        db.createObjectStore("feed-item", { keyPath: "guid" });
+        const feedItemStore = db.createObjectStore("feed-item", {
+          keyPath: "guid",
+        });
+        feedItemStore.createIndex("by-iso-date", "isoDate");
         db.createObjectStore("feed-item-playback", { keyPath: "feedItemGuid" });
       },
     });

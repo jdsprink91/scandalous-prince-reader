@@ -3,8 +3,9 @@ import { Feed, FeedItem } from "./rss";
 
 export type FeedTable = Omit<Feed, "items">;
 
-export interface FeedItemTableRow extends FeedItem {
+export interface FeedItemTableRow extends Omit<FeedItem, "isoDate"> {
   feedLink: string;
+  isoDate?: Date;
 }
 
 interface FeedItemPlaybackRow {
@@ -21,6 +22,9 @@ export interface SPDB extends DBSchema {
   "feed-item": {
     key: string;
     value: FeedItemTableRow;
+    indexes: {
+      "by-iso-date": Date;
+    };
   };
   "feed-item-playback": {
     key: string;

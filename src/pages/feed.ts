@@ -23,7 +23,8 @@ export class SpFeedPage extends LitElement {
   private _feedTask = new Task(this, {
     task: async () => {
       const db = await getSPDB();
-      const feedItems = await db.getAll("feed-item");
+      let feedItems = await db.getAllFromIndex("feed-item", "by-iso-date");
+      feedItems = feedItems.reverse();
       const feeds = await db.getAll("feed");
       const feedsByKey = feeds.reduce(
         (acc, feed) => {
@@ -77,7 +78,8 @@ export class SpFeedPage extends LitElement {
         };
       })
       .filter((card) => card !== null);
-    return html` <sp-feed-list .feedItems=${feedItemCards}></sp-feed-list> `;
+
+    return html`<sp-feed-list .feedItems=${feedItemCards}></sp-feed-list>`;
   };
 
   render() {

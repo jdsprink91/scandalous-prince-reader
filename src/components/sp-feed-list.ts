@@ -2,13 +2,14 @@ import dayjs from "dayjs";
 import { css, CSSResultGroup, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { openAudioPlayer } from "../actions/audio";
+import { ifDefined } from "lit/directives/if-defined.js";
 
 export interface FeedItemCard {
   audioSrc: string;
   title: string;
   showName: string;
   contentSnippet?: string;
-  dateAdded?: string;
+  dateAdded?: Date;
   imgSrc?: string;
 }
 
@@ -38,12 +39,31 @@ export class SpFeedList extends LitElement {
       padding: 0.5rem 0.25rem;
     }
 
-    li > h2 {
+    .header-container {
+      display: flex;
+    }
+
+    img {
+      border-radius: 4px;
+      object-fit: cover;
+      aspect-ratio: 1 / 1;
+    }
+
+    .ugh {
+      margin-left: 1rem;
+    }
+
+    h2 {
       font-size: 1.125rem;
       margin: 0;
     }
 
-    li > p {
+    h2 + p {
+      margin-top: 0.5rem;
+      margin-bottom: 0;
+    }
+
+    .content-snippet {
       flex-shrink: 2;
       margin: 0;
       overflow: hidden;
@@ -52,15 +72,18 @@ export class SpFeedList extends LitElement {
       -webkit-box-orient: vertical;
     }
 
-    li > div {
+    .date-and-action-container {
       display: flex;
       align-items: center;
-      justify-content: space-between;
     }
 
-    li > div > date {
+    date {
       margin-top: 0;
       margin-bottom: 0;
+    }
+
+    .play-button {
+      margin-left: auto;
     }
   `;
 
@@ -68,7 +91,7 @@ export class SpFeedList extends LitElement {
   feedItems: FeedItemCard[] = [];
 
   private async _handlePlayClick(card: FeedItemCard) {
-    openAudioPlayer(card.showName, card.title, card.imgSrc, card.audioSrc);
+    openAudioPlayer(card.showName, card.title, card.imgSrc!, card.audioSrc);
   }
 
   render() {
@@ -76,11 +99,20 @@ export class SpFeedList extends LitElement {
       ${this.feedItems.map((feedItem) => {
         return html`
           <li>
-            <h2>${feedItem.title}</h2>
-            <p>${feedItem.contentSnippet}</p>
-            <div>
+            <div class="header-container">
+              <img src=${ifDefined(feedItem.imgSrc)} width="50" />
+              <div class="ugh">
+                <h2>${feedItem.title}</h2>
+                <p>${feedItem.showName}</p>
+              </div>
+            </div>
+            <p class="content-snippet">${feedItem.contentSnippet}</p>
+            <div class="date-and-action-container">
               <date>${dayjs(feedItem.dateAdded).format("MMM D, YYYY")}</date>
-              <button @click=${() => this._handlePlayClick(feedItem)}>
+              <button
+                class="play-button"
+                @click=${() => this._handlePlayClick(feedItem)}
+              >
                 Play me somethin
               </button>
             </div>
