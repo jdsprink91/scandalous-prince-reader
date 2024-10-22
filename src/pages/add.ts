@@ -5,10 +5,7 @@ import { Feed } from "../types/rss";
 import sleepyCat from "../assets/noun-sleepy-cat-6113435.svg";
 import "../components/sp-loading-spinner";
 import { addFeed } from "../actions/feed";
-
-// local state
-let input: string | null = null;
-let cachedFeed: Feed | null = null;
+import { Task } from "@lit/task";
 
 @customElement("sp-add-feed-page")
 export class SpAddPage extends LitElement {
@@ -42,62 +39,47 @@ export class SpAddPage extends LitElement {
   `;
 
   @state()
-  private _loading: boolean = false;
+  private _feedUrl: string | null = null;
 
-  @state()
-  private _error: boolean = false;
-
-  @state()
-  private _adding: boolean = false;
-
-  @state()
-  private _feed: Feed | null = cachedFeed;
-
-  private async _handleSubmit(e: SubmitEvent) {
-    e.preventDefault();
-
-    this._loading = true;
-    this._error = false;
-    const formData = new FormData(e.target as HTMLFormElement);
-    const rssFeedUrl = formData.get("rss-feed") as string;
-    input = rssFeedUrl;
-    try {
-      const rssFeedResponse = await fetch("/api/read-rss-feed", {
-        method: "post",
-        body: JSON.stringify({
-          q: rssFeedUrl,
-        }),
-      });
-      if (!rssFeedResponse.ok) {
-        throw new Error("whoops");
+  private _parseFeed = new Task(this, {
+    task: async ([feedUrl]) => {
+      if (feedUrl) {
+        const rssFeedResponse = await fetch("/api/read-rss-feed", {
+          method: "post",
+          body: JSON.stringify({
+            q: feedUrl,
+          }),
+        });
+        if (!rssFeedResponse.ok) {
+          throw new Error("whoops");
+        }
+        return rssFeedResponse.json();
       }
-      const rssFeedJson: Feed = await rssFeedResponse.json();
-      this._feed = rssFeedJson;
-      cachedFeed = rssFeedJson;
-    } catch {
-      input = "";
-      cachedFeed = null;
-      this._error = true;
-    } finally {
-      this._loading = false;
-    }
-  }
 
-  private async _handleAdd() {
-    if (this._feed) {
-      await addFeed(this._feed);
-    }
-  }
+      return null;
+    },
+    args: () => [this._feedUrl],
+  });
 
-  private _renderLoading() {
+  private _handleSubmit = (e: SubmitEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    this._feedUrl = formData.get("rss-feed") as string;
+  };
+
+  private _handleAdd = async (feed: Feed) => {
+    await addFeed(feed);
+  };
+
+  private _renderLoading = () => {
     return html`
       <div class="loading-error-container">
         <sp-loading-spinner></sp-loading-spinner>
       </div>
     `;
-  }
+  };
 
-  private _renderError() {
+  private _renderError = () => {
     return html`
       <div class="loading-error-container">
         <div>
@@ -106,34 +88,36 @@ export class SpAddPage extends LitElement {
         </div>
       </div>
     `;
-  }
+  };
 
-  private _renderFeed() {
-    if (this._feed) {
-      return html`
+  private _renderFeed = (feed: Feed) => {
+    return html`
         <div class="podcast-info-container">
-          <img heigh="100" width="100" src="${ifDefined(this._feed.image?.url)}"></img>
+          <img heigh="100" width="100" src="${ifDefined(feed.image?.url)}"></img>
           <div>
-            <p>${this._feed.title}</p>
-            <p>${this._feed.description}</p>
+            <p>${feed.title}</p>
+            <p>${feed.description}</p>
           </div>
-          <button @click=${this._handleAdd}>Add Feed</button>
+          <button @click=${() => this._handleAdd(feed)}>Add Feed</button>
         </div>
         `;
-    }
-
-    return nothing;
-  }
+  };
 
   render() {
     return html`
       <form @submit=${this._handleSubmit}>
-        <input type="text" name="rss-feed" value=${input ?? ""} />
+        <input type="text" name="rss-feed" />
         <button type="submit">Search</button>
       </form>
-      ${this._loading ? this._renderLoading() : nothing}
-      ${this._error ? this._renderError() : nothing}
-      ${!this._loading && !this._error ? this._renderFeed() : nothing}
+      ${this._feedUrl !== null
+        ? html`
+            ${this._parseFeed.render({
+              pending: this._renderLoading,
+              error: this._renderError,
+              complete: this._renderFeed,
+            })}
+          `
+        : nothing}
     `;
   }
 }
