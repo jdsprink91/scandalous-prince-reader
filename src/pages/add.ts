@@ -68,14 +68,6 @@ export class SpAddPage extends LitElement {
     await addFeed(feed);
   };
 
-  private _renderLoading = () => {
-    return html`
-      <div class="loading-error-container">
-        <sp-loading-spinner></sp-loading-spinner>
-      </div>
-    `;
-  };
-
   private _renderError = () => {
     return html`
       <div class="loading-error-container">
@@ -95,7 +87,7 @@ export class SpAddPage extends LitElement {
             <p>${feed.title}</p>
             <p>${feed.description}</p>
           </div>
-          <!-- TODO: make this its own component so I can use a task here -->
+          <!-- TODO: see if I can also make this a task for better loading states -->
           <button @click=${() => this._handleAdd(feed)}>Add Feed</button>
         </div>
         `;
@@ -108,7 +100,7 @@ export class SpAddPage extends LitElement {
         <button type="submit">Search</button>
       </form>
       ${this._parseFeed.render({
-        pending: this._renderLoading,
+        pending: () => html`<sp-loading-page></sp-loading-page>`,
         error: this._renderError,
         complete: this._renderFeed,
         initial: () => nothing,
