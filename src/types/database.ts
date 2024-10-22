@@ -1,7 +1,7 @@
 import { DBSchema } from "idb";
 import { Feed, FeedItem } from "./rss";
 
-export type FeedTable = Omit<Feed, "items">;
+export type FeedTableRow = Omit<Feed, "items">;
 
 export interface FeedItemTableRow extends Omit<FeedItem, "isoDate"> {
   feedLink: string;
@@ -17,7 +17,7 @@ interface FeedItemPlaybackRow {
 export interface SPDB extends DBSchema {
   feed: {
     key: string;
-    value: FeedTable;
+    value: FeedTableRow;
   };
   "feed-item": {
     key: string;

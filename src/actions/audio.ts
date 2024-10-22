@@ -20,7 +20,8 @@ export function openAudioPlayer(
   player.setAttribute("title", title);
   player.setAttribute("img-src", imgSrc);
 
-  audio.setAttribute("src", audioSrc);
+  // set property here
+  audio.src = audioSrc;
 
   // make sure the widget on lock screen looks good
   if ("mediaSession" in navigator) {

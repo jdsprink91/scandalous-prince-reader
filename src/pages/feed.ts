@@ -1,25 +1,18 @@
-import { css, CSSResultGroup, html, LitElement } from "lit";
+import { html, LitElement } from "lit";
 import { Task } from "@lit/task";
 import { customElement } from "lit/decorators.js";
-import { FeedItemTableRow, FeedTable } from "../types/database";
+import { FeedItemTableRow, FeedTableRow } from "../types/database";
 import { getSPDB } from "../actions/database";
 import "../components/sp-feed-list";
 import { FeedItemCard } from "../components/sp-feed-list";
+import "../components/sp-loading-page.ts";
 
 interface FeedItemWithFeedParent extends FeedItemTableRow {
-  feed: FeedTable;
+  feed: FeedTableRow;
 }
 
 @customElement("sp-feed-page")
 export class SpFeedPage extends LitElement {
-  static styles?: CSSResultGroup | undefined = css`
-    .loading-error-container {
-      display: grid;
-      height: 200px;
-      place-items: center;
-    }
-  `;
-
   private _feedTask = new Task(this, {
     task: async () => {
       const db = await getSPDB();
@@ -33,7 +26,7 @@ export class SpFeedPage extends LitElement {
             ...acc,
           };
         },
-        {} as Record<string, FeedTable>,
+        {} as Record<string, FeedTableRow>,
       );
 
       return feedItems.map((feedItem) => {
@@ -45,14 +38,6 @@ export class SpFeedPage extends LitElement {
     },
     args: () => [],
   });
-
-  private _renderLoading() {
-    return html`
-      <div class="loading-error-container">
-        <sp-loading-spinner></sp-loading-spinner>
-      </div>
-    `;
-  }
 
   private _renderFeed = (feedItems: FeedItemWithFeedParent[]) => {
     const feedItemCards: FeedItemCard[] = feedItems
@@ -79,15 +64,16 @@ export class SpFeedPage extends LitElement {
       })
       .filter((card) => card !== null);
 
-    return html`<sp-feed-list .feedItems=${feedItemCards}></sp-feed-list>`;
+    return html`
+      <h1>Your Feed</h1>
+      <sp-feed-list .feedItems=${feedItemCards}></sp-feed-list>
+    `;
   };
 
   render() {
-    return html`
-      ${this._feedTask.render({
-        pending: this._renderLoading,
-        complete: this._renderFeed,
-      })}
-    `;
+    return this._feedTask.render({
+      pending: () => html`<sp-loading-page></sp-loading-page>`,
+      complete: this._renderFeed,
+    });
   }
 }

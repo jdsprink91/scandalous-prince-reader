@@ -3,6 +3,7 @@ import { css, CSSResultGroup, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { openAudioPlayer } from "../actions/audio";
 import { ifDefined } from "lit/directives/if-defined.js";
+import "../components/sp-show-img";
 
 export interface FeedItemCard {
   audioSrc: string;
@@ -24,19 +25,20 @@ export class SpFeedList extends LitElement {
       padding-left: 0;
     }
 
-    li + li {
-      margin-top: 0.25rem;
-    }
-
     li {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       list-style: none;
-      border: 1px solid black;
-      border-radius: 2px;
-      height: 10rem;
-      padding: 0.5rem 0.25rem;
+      min-height: 10rem;
+      padding-left: 0.25rem;
+      padding-right: 0.25rem;
+      padding-bottom: 0.75rem;
+    }
+
+    li + li {
+      padding-top: 0.75rem;
+      border-top: 1px solid black;
     }
 
     .header-container {
@@ -46,7 +48,9 @@ export class SpFeedList extends LitElement {
     img {
       border-radius: 4px;
       object-fit: cover;
-      aspect-ratio: 1 / 1;
+      flex-shrink: 0;
+      width: 60px;
+      height: 60px;
     }
 
     .ugh {
@@ -100,7 +104,8 @@ export class SpFeedList extends LitElement {
         return html`
           <li>
             <div class="header-container">
-              <img src=${ifDefined(feedItem.imgSrc)} width="50" />
+              <!--<img src=${ifDefined(feedItem.imgSrc)} />-->
+              <sp-show-img .src=${feedItem.imgSrc}></sp-show-img>
               <div class="ugh">
                 <h2>${feedItem.title}</h2>
                 <p>${feedItem.showName}</p>

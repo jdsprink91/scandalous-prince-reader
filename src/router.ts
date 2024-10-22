@@ -9,6 +9,7 @@ import "./pages/feed";
 import "./pages/add";
 import "./pages/about";
 import "./pages/landing";
+import "./pages/shows";
 import "./components/sp-header";
 import "./components/sp-mobile-footer";
 import "./components/sp-mobile-audio-player";
@@ -40,10 +41,16 @@ export const router = new Router({
       render: getPage(html`<sp-feed-page></sp-feed-page>`),
     },
     {
-      path: resolveRouterPath("add"),
-      title: "Add",
-      render: getPage(html`<sp-add-page></sp-add-page>`),
+      path: resolveRouterPath("shows/add"),
+      title: "Add Show",
+      render: getPage(html`<sp-add-feed-page></sp-add-feed-page>`),
     },
+    {
+      path: resolveRouterPath("shows"),
+      title: "Shows",
+      render: getPage(html`<sp-shows-page></sp-shows-page>`),
+    },
+
     {
       path: resolveRouterPath("about"),
       title: "About",

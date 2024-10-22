@@ -11,7 +11,7 @@ export class SpLandingPage extends LiteDomLitElement {
       <h1>Scandalous Prince RSS</h1>
       <nav class="landing-page__nav">
         <a class="landing-link" href="/feed">Feed</a>
-        <a class="landing-link" href="/add">Add</a>
+        <a class="landing-link" href="/shows">Shows</a>
       </nav>
     </div>`;
   }

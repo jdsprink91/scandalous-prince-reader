@@ -42,7 +42,7 @@ something.
 - [x] Move some code around to make it easier to work with
 - [x] Add rss feed and items to indexeddb
 - [x] Display feed on page
-- [ ] add shows page. List shows and add new one
+- [x] add shows page. List shows and add new one
 - [ ] delete rss feed
 
 ## V0.0.5 checklist

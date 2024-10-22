@@ -1,3 +1,4 @@
+import { FeedTableRow } from "../types/database";
 import { Feed } from "../types/rss";
 import { getSPDB } from "./database";
 
@@ -23,4 +24,8 @@ export async function addFeed(feed: Feed) {
   );
 
   return tx.done;
+}
+
+export async function deleteFeed(feed: FeedTableRow) {
+  console.log(feed);
 }
