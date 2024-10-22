@@ -97,16 +97,15 @@ export class SpAddPage extends LitElement {
             <p>${feed.description}</p>
           </div>
           <div class="action-container">
-          ${this._addFeed.render({
-            initial: () => html`
-              <button @click=${() => this._handleAdd(feed)}>Add Feed</button>
-            `,
-            complete: () => {
-              // TODO: add toast
-              return html`<p>Added!</p>`;
-            },
-          })}
-    </div>
+            ${this._addFeed.render({
+              initial: () => html`
+                <button @click=${() => this._handleAdd(feed)}>Add Feed</button>
+              `,
+              complete: () => {
+                return html`<p>Added!</p>`;
+              },
+            })}
+          </div>
         </div>
         `;
   };
