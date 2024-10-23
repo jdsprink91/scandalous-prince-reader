@@ -73,10 +73,6 @@ export class SpAddPage extends LitElement {
     this._parseFeed.run([feedUrl]);
   };
 
-  private _handleAdd = (feed: Feed) => {
-    this._addFeed.run([feed]);
-  };
-
   private _renderError = () => {
     return html`
       <div class="loading-error-container">
@@ -90,24 +86,27 @@ export class SpAddPage extends LitElement {
 
   private _renderFeed = (feed: Feed) => {
     return html`
-        <div class="podcast-info-container">
-          <img heigh="100" width="100" src="${ifDefined(feed.image?.url)}"></img>
-          <div class="title-description-container">
-            <p>${feed.title}</p>
-            <p>${feed.description}</p>
-          </div>
-          <div class="action-container">
-            ${this._addFeed.render({
-              initial: () => html`
-                <button @click=${() => this._handleAdd(feed)}>Add Feed</button>
-              `,
-              complete: () => {
-                return html`<p>Added!</p>`;
-              },
-            })}
-          </div>
+      <div class="podcast-info-container">
+        <img heigh="100" width="100" src="${ifDefined(feed.image?.url)}"></img>
+        <div class="title-description-container">
+          <p>${feed.title}</p>
+          <p>${feed.description}</p>
         </div>
-        `;
+        <div class="action-container">
+          ${this._addFeed.render({
+            initial: () => html`
+              <button @click=${() => this._addFeed.run([feed])}>
+                Add Feed
+              </button>
+            `,
+            // TODO: figure out loading button
+            complete: () => {
+              return html`<p>Added!</p>`;
+            },
+          })}
+        </div>
+      </div>
+    `;
   };
 
   render() {
