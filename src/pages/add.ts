@@ -1,11 +1,9 @@
 import { css, CSSResultGroup, html, LitElement, nothing } from "lit";
 import { customElement } from "lit/decorators.js";
-import { ifDefined } from "lit/directives/if-defined.js";
-import { Feed } from "../types/rss";
 import sleepyCat from "../assets/noun-sleepy-cat-6113435.svg";
 import "../components/sp-loading-spinner";
-import { addFeed } from "../actions/feed";
 import { Task } from "@lit/task";
+import "../components/sp-add-feed-item";
 
 @customElement("sp-add-feed-page")
 export class SpAddPage extends LitElement {
@@ -24,20 +22,6 @@ export class SpAddPage extends LitElement {
 
     button[type="submit"] {
       margin-left: 2rem;
-    }
-
-    .podcast-info-container {
-      display: flex;
-      align-items: center;
-      margin-top: 1rem;
-    }
-
-    .title-description-container {
-      margin-left: 0.5rem;
-    }
-
-    .action-container {
-      margin-left: auto;
     }
   `;
 
@@ -60,12 +44,6 @@ export class SpAddPage extends LitElement {
     },
   });
 
-  private _addFeed = new Task(this, {
-    task: async ([feed]: [Feed]) => {
-      return addFeed(feed);
-    },
-  });
-
   private _handleSubmit = (e: SubmitEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
@@ -84,31 +62,6 @@ export class SpAddPage extends LitElement {
     `;
   };
 
-  private _renderFeed = (feed: Feed) => {
-    return html`
-      <div class="podcast-info-container">
-        <img heigh="100" width="100" src="${ifDefined(feed.image?.url)}"></img>
-        <div class="title-description-container">
-          <p>${feed.title}</p>
-          <p>${feed.description}</p>
-        </div>
-        <div class="action-container">
-          ${this._addFeed.render({
-            initial: () => html`
-              <button @click=${() => this._addFeed.run([feed])}>
-                Add Feed
-              </button>
-            `,
-            // TODO: figure out loading button
-            complete: () => {
-              return html`<p>Added!</p>`;
-            },
-          })}
-        </div>
-      </div>
-    `;
-  };
-
   render() {
     return html`
       <form @submit=${this._handleSubmit}>
@@ -118,7 +71,8 @@ export class SpAddPage extends LitElement {
       ${this._parseFeed.render({
         pending: () => html`<sp-loading-page></sp-loading-page>`,
         error: this._renderError,
-        complete: this._renderFeed,
+        complete: (feed) =>
+          html`<sp-add-feed-item .feed=${feed}></sp-add-feed-item>`,
         initial: () => nothing,
       })}
     `;

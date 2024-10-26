@@ -2,7 +2,6 @@ import dayjs from "dayjs";
 import { css, CSSResultGroup, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { openAudioPlayer } from "../actions/audio";
-import { ifDefined } from "lit/directives/if-defined.js";
 import "../components/sp-show-img";
 
 export interface FeedItemCard {
@@ -104,7 +103,6 @@ export class SpFeedList extends LitElement {
         return html`
           <li>
             <div class="header-container">
-              <!--<img src=${ifDefined(feedItem.imgSrc)} />-->
               <sp-show-img .src=${feedItem.imgSrc}></sp-show-img>
               <div class="ugh">
                 <h2>${feedItem.title}</h2>

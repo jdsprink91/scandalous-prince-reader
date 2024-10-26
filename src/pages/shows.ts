@@ -1,5 +1,5 @@
 import { css, html, LitElement } from "lit";
-import { customElement } from "lit/decorators.js";
+import { customElement, state } from "lit/decorators.js";
 import { getSPDB } from "../actions/database";
 import { Task } from "@lit/task";
 import { FeedTableRow } from "../types/database";
@@ -46,6 +46,9 @@ export class SpShowsPage extends LitElement {
     }
   `;
 
+  @state()
+  private _deletedShows: string[] = [];
+
   private _showsTask = new Task(this, {
     task: async () => {
       const db = await getSPDB();
@@ -81,8 +84,7 @@ export class SpShowsPage extends LitElement {
     // tell everyone that we're done
     await tx.done;
 
-    // pull latest and greatest (might need to redo this)
-    this._showsTask.run();
+    this._deletedShows = [...this._deletedShows, show.link!];
   };
 
   private _renderShows = (feeds: FeedTableRow[]) => {
@@ -92,17 +94,20 @@ export class SpShowsPage extends LitElement {
         <a href="/shows/add">Add a show</a>
       </div>
       <ul>
-        ${feeds.map((feed) => {
-          return html`<li>
-            <sp-show-img .src=${feed.image?.url}></sp-show-img>
-            <div class="show-title-info-container">
-              <h2>${feed.title}</h2>
-              <div class="actions-container">
-                <button @click=${() => this._deleteShow(feed)}>Delete</button>
+        ${feeds
+          // this feels nasty: might have to revisit
+          .filter((show) => !this._deletedShows.includes(show.link!))
+          .map((show) => {
+            return html`<li>
+              <sp-show-img .src=${show.image?.url}></sp-show-img>
+              <div class="show-title-info-container">
+                <h2>${show.title}</h2>
+                <div class="actions-container">
+                  <button @click=${() => this._deleteShow(show)}>Delete</button>
+                </div>
               </div>
-            </div>
-          </li>`;
-        })}
+            </li>`;
+          })}
       </ul>
     `;
   };

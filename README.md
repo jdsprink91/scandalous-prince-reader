@@ -45,12 +45,13 @@ something.
 - [x] add shows page. List shows and add new one
 - [x] delete rss feed
 - [ ] add some nice async things to deleting and adding feed item
-- [ ] get some toasty actions going
 
 ## V0.0.5 checklist
 
 - [ ] Pull from feed
+- [ ] paginate?
 - [ ] figure out feed item metadata (save this info an display it)
+- [ ] show feed item as playing when they hit play from feed
 
 ## V0.0.6 checklist
 
@@ -62,9 +63,9 @@ something.
 
 ## V0.0.7 checklist
 
-- [ ] figure out state needed for playing items (played, save last place, etc)
 - [ ] Full page audio player
 - [ ] Add hour to mobile audio player
+- [ ] write about page (links on how to install PWA)
 
 # Testing
 
@@ -72,3 +73,4 @@ Some test urls
 
 - https://shoptalkshow.com/feed/podcast
 - https://feed.podbean.com/demolisten/feed.xml
+- https://www.thisamericanlife.org/podcast/rss.xml

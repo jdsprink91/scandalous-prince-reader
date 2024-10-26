@@ -14,7 +14,7 @@ export class SpShowImg extends LitElement {
     }
   `;
 
-  @property({ attribute: "src" })
+  @property()
   src: string | undefined;
 
   render() {
