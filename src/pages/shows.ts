@@ -95,9 +95,10 @@ export class SpShowsPage extends LitElement {
       </div>
       <ul>
         ${feeds
-          // this feels nasty: might have to revisit
+          // this feels nasty: might have to revisit (see TODO)
           .filter((show) => !this._deletedShows.includes(show.link!))
           .map((show) => {
+            // TODO: make this its own row so that tasks can be better contained
             return html`<li>
               <sp-show-img .src=${show.image?.url}></sp-show-img>
               <div class="show-title-info-container">
