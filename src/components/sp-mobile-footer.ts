@@ -20,7 +20,7 @@ export class SpMobileFooter extends LiteDomLitElement {
       <footer>
         <nav>
           <a href="/feed" class=${this.getClass("/feed")}>Feed</a>
-          <a href="/add" class=${this.getClass("/add")}>Add</a>
+          <a href="/shows" class=${this.getClass("/shows")}>Shows</a>
           <a href="/about" class=${this.getClass("/about")}>About</a>
         </nav>
       </footer>

@@ -39,18 +39,45 @@ something.
 
 ## V0.0.4 checklist
 
-- [ ] Add RSS feed to indexeddb
-- [ ] Display feed on page 
-- [ ] Build page for individual feed item
-- [ ] Save state on whether item has been played and such
+- [x] Move some code around to make it easier to work with
+- [x] Add rss feed and items to indexeddb
+- [x] Display feed on page
+- [x] add shows page. List shows and add new one
+- [x] delete rss feed
+- [x] add some nice async things to deleting and adding feed item
 
 ## V0.0.5 checklist
 
+- [ ] Pull from feed
+- [ ] paginate? virtualize?
+- [ ] search
+- [ ] figure out feed item metadata (save this info an display it)
+- [ ] show feed item as playing when they hit play from feed
+
+## V0.0.6 checklist
+
+- [ ] backup image for everything
+- [ ] get play and pause button
+- [ ] do some checks to make sure that our feed has fields required by db
+- [ ] Build page for individual feed item
+- [ ] Get rid of `LiteDomLitElement`
+
+## V0.0.7 checklist
+
 - [ ] Full page audio player
 - [ ] Add hour to mobile audio player
+- [ ] write about page (links on how to install PWA)
+
+## V0.0.8 checklist
+
+Tons of style updates
+
+- [ ] Progress bar moves based on time duration (need to set width on duration)
 
 # Testing
 
 Some test urls
+
 - https://shoptalkshow.com/feed/podcast
 - https://feed.podbean.com/demolisten/feed.xml
+- https://www.thisamericanlife.org/podcast/rss.xml
