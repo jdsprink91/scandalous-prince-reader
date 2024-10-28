@@ -48,9 +48,9 @@ something.
 
 ## V0.0.5 checklist
 
-- [ ] Pull from feed
-- [ ] paginate? virtualize?
+- [x] Pull from feed
 - [ ] search
+- [ ] paginate? virtualize?
 - [ ] figure out feed item metadata (save this info an display it)
 - [ ] show feed item as playing when they hit play from feed
 

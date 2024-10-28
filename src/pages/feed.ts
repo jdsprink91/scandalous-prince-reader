@@ -1,4 +1,4 @@
-import { html, LitElement } from "lit";
+import { css, html, LitElement } from "lit";
 import { Task } from "@lit/task";
 import { customElement } from "lit/decorators.js";
 import { FeedItemTableRow, FeedTableRow } from "../types/database";
@@ -6,6 +6,8 @@ import { getSPDB } from "../actions/database";
 import "../components/sp-feed-list";
 import { FeedItemCard } from "../components/sp-feed-list";
 import "../components/sp-loading-page.ts";
+import { addFeed } from "../actions/feed.ts";
+import { Feed } from "../types/rss.ts";
 
 interface FeedItemWithFeedParent extends FeedItemTableRow {
   feed: FeedTableRow;
@@ -13,33 +15,62 @@ interface FeedItemWithFeedParent extends FeedItemTableRow {
 
 @customElement("sp-feed-page")
 export class SpFeedPage extends LitElement {
+  static styles = css`
+    .header-and-reload-container {
+      display: flex;
+      justify-content: space-between;
+    }
+  `;
+
+  private _getFeed = async () => {
+    const db = await getSPDB();
+    let feedItems = await db.getAllFromIndex("feed-item", "by-iso-date");
+    feedItems = feedItems.reverse();
+    const feeds = await db.getAll("feed");
+    const feedsByKey = feeds.reduce(
+      (acc, feed) => {
+        return {
+          [feed.link!]: feed,
+          ...acc,
+        };
+      },
+      {} as Record<string, FeedTableRow>,
+    );
+
+    return feedItems.map((feedItem) => {
+      return {
+        feed: feedsByKey[feedItem.feedLink],
+        ...feedItem,
+      };
+    }) as FeedItemWithFeedParent[];
+  };
+
   private _feedTask = new Task(this, {
     task: async () => {
-      const db = await getSPDB();
-      let feedItems = await db.getAllFromIndex("feed-item", "by-iso-date");
-      feedItems = feedItems.reverse();
-      const feeds = await db.getAll("feed");
-      const feedsByKey = feeds.reduce(
-        (acc, feed) => {
-          return {
-            [feed.link!]: feed,
-            ...acc,
-          };
-        },
-        {} as Record<string, FeedTableRow>,
-      );
-
-      return feedItems.map((feedItem) => {
-        return {
-          feed: feedsByKey[feedItem.feedLink],
-          ...feedItem,
-        };
-      }) as FeedItemWithFeedParent[];
+      return this._getFeed();
     },
     args: () => [],
   });
 
-  private _renderFeed = (feedItems: FeedItemWithFeedParent[]) => {
+  private _refreshFeedTask = new Task(this, {
+    task: async () => {
+      const db = await getSPDB();
+      const feeds = await db.getAll("feed");
+      const feedUrls = feeds
+        .map((feed) => encodeURIComponent(feed.feedUrl!))
+        .join(",");
+
+      const searchParams = new URLSearchParams(`feeds=${feedUrls}`);
+      const response = await fetch(`/api/fetch-feed?${searchParams}`, {
+        method: "get",
+      });
+      const feedUpdates = await response.json();
+      await Promise.all(feedUpdates.map((feed: Feed) => addFeed(feed)));
+      return this._getFeed();
+    },
+  });
+
+  private _renderFeedList = (feedItems: FeedItemWithFeedParent[]) => {
     const feedItemCards: FeedItemCard[] = feedItems
       .map((feedItem) => {
         const imgSrc = feedItem.itunes?.image ?? feedItem.feed.image?.url;
@@ -63,11 +94,23 @@ export class SpFeedPage extends LitElement {
         };
       })
       .filter((card) => card !== null);
+    return html` <div class="header-and-reload-container">
+        <h1>Your Feed</h1>
+        <button @click=${() => this._refreshFeedTask.run()}>
+          Refresh Feed
+        </button>
+      </div>
+      <sp-feed-list .feedItems=${feedItemCards}></sp-feed-list>`;
+  };
 
-    return html`
-      <h1>Your Feed</h1>
-      <sp-feed-list .feedItems=${feedItemCards}></sp-feed-list>
-    `;
+  private _renderFeed = (feedItems: FeedItemWithFeedParent[]) => {
+    return this._refreshFeedTask.render({
+      pending: () => html`<sp-loading-page></sp-loading-page>`,
+      initial: () => html` ${this._renderFeedList(feedItems)} `,
+      complete: (refreshedItems: FeedItemWithFeedParent[]) => html`
+        ${this._renderFeedList(refreshedItems)}
+      `,
+    });
   };
 
   render() {
