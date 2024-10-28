@@ -64,7 +64,6 @@ something.
 
 ## V0.0.7 checklist
 
-- [ ] Full page audio player
 - [ ] Add hour to mobile audio player
 - [ ] write about page (links on how to install PWA)
 
@@ -73,6 +72,7 @@ something.
 Tons of style updates
 
 - [ ] Progress bar moves based on time duration (need to set width on duration)
+- [ ] Error states
 
 # Testing
 
