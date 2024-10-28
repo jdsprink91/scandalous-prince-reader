@@ -44,12 +44,13 @@ something.
 - [x] Display feed on page
 - [x] add shows page. List shows and add new one
 - [x] delete rss feed
-- [ ] add some nice async things to deleting and adding feed item
+- [x] add some nice async things to deleting and adding feed item
 
 ## V0.0.5 checklist
 
 - [ ] Pull from feed
-- [ ] paginate?
+- [ ] paginate? virtualize?
+- [ ] search
 - [ ] figure out feed item metadata (save this info an display it)
 - [ ] show feed item as playing when they hit play from feed
 
@@ -66,6 +67,12 @@ something.
 - [ ] Full page audio player
 - [ ] Add hour to mobile audio player
 - [ ] write about page (links on how to install PWA)
+
+## V0.0.8 checklist
+
+Tons of style updates
+
+- [ ] Progress bar moves based on time duration (need to set width on duration)
 
 # Testing
 
