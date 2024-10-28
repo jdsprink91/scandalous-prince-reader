@@ -94,22 +94,28 @@ export class SpFeedPage extends LitElement {
         };
       })
       .filter((card) => card !== null);
-    return html` <div class="header-and-reload-container">
+
+    // when we start searching, I'm gonna need a whole lotta help
+    // I feel like I might need to restructure this
+    return html`
+      <div class="header-and-reload-container">
         <h1>Your Feed</h1>
         <button @click=${() => this._refreshFeedTask.run()}>
           Refresh Feed
         </button>
       </div>
-      <sp-feed-list .feedItems=${feedItemCards}></sp-feed-list>`;
+      <div>
+        <input />
+      </div>
+      <sp-feed-list .feedItems=${feedItemCards}></sp-feed-list>
+    `;
   };
 
   private _renderFeed = (feedItems: FeedItemWithFeedParent[]) => {
     return this._refreshFeedTask.render({
       pending: () => html`<sp-loading-page></sp-loading-page>`,
-      initial: () => html` ${this._renderFeedList(feedItems)} `,
-      complete: (refreshedItems: FeedItemWithFeedParent[]) => html`
-        ${this._renderFeedList(refreshedItems)}
-      `,
+      initial: () => this._renderFeedList(feedItems),
+      complete: this._renderFeedList,
     });
   };
 
