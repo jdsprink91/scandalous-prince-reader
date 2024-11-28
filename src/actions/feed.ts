@@ -1,4 +1,4 @@
-import { FeedTableRow } from "../types/database";
+import { FeedItemPlaybackRow } from "../types/database";
 import { Feed } from "../types/rss";
 import { getSPDB } from "./database";
 
@@ -26,6 +26,13 @@ export async function addFeed(feed: Feed) {
   return tx.done;
 }
 
-export async function deleteFeed(feed: FeedTableRow) {
-  console.log(feed);
+export async function updateFeedItemPlayback(
+  feedItemPlaybackRow: FeedItemPlaybackRow,
+) {
+  console.log(feedItemPlaybackRow);
+  const db = await getSPDB();
+  const tx = db.transaction("feed-item-playback", "readwrite");
+  const feedItemPlaybackStore = tx.objectStore("feed-item-playback");
+  feedItemPlaybackStore.put(feedItemPlaybackRow);
+  await tx.done;
 }

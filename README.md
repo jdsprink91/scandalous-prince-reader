@@ -49,23 +49,16 @@ something.
 ## V0.0.5 checklist
 
 - [x] Pull from feed
-- [ ] search
-- [ ] paginate? virtualize?
 - [ ] figure out feed item metadata (save this info an display it)
 - [ ] show feed item as playing when they hit play from feed
+- [ ] get play and pause button
 
 ## V0.0.6 checklist
 
 - [ ] backup image for everything
-- [ ] get play and pause button
 - [ ] do some checks to make sure that our feed has fields required by db
 - [ ] Build page for individual feed item
 - [ ] Get rid of `LiteDomLitElement`
-
-## V0.0.7 checklist
-
-- [ ] Add hour to mobile audio player
-- [ ] write about page (links on how to install PWA)
 
 ## V0.0.8 checklist
 
@@ -73,6 +66,13 @@ Tons of style updates
 
 - [ ] Progress bar moves based on time duration (need to set width on duration)
 - [ ] Error states
+- [ ] Add hour to mobile audio player
+
+## V0.0.7 checklist
+
+- [ ] write about page (links on how to install PWA)
+- [ ] search
+- [ ] paginate? virtualize?
 
 # Testing
 

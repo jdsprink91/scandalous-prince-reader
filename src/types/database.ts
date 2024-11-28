@@ -8,11 +8,10 @@ export interface FeedItemTableRow extends Omit<FeedItem, "isoDate"> {
   isoDate?: Date;
 }
 
-interface FeedItemPlaybackRow {
-  feedLink: string;
-  feedItemGuid: string;
+export interface FeedItemPlaybackRow {
+  url: string;
   played: boolean;
-  duration: number;
+  currentTime: number;
 }
 
 export interface SPDB extends DBSchema {
@@ -32,8 +31,7 @@ export interface SPDB extends DBSchema {
     key: string;
     value: FeedItemPlaybackRow;
     indexes: {
-      "by-feed-link": string;
-      "by-feed-item-guid": string;
+      url: string;
     };
   };
 }

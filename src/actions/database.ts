@@ -14,11 +14,10 @@ export async function getSPDB(): Promise<IDBPDatabase<SPDB>> {
         feedItemStore.createIndex("by-iso-date", "isoDate");
         feedItemStore.createIndex("by-feed-link", "feedLink");
 
-        const feedItemGuid = db.createObjectStore("feed-item-playback", {
-          keyPath: "feedItemGuid",
+        const feedItemPlayback = db.createObjectStore("feed-item-playback", {
+          keyPath: "url",
         });
-        feedItemGuid.createIndex("by-feed-item-guid", "feedItemGuid");
-        feedItemGuid.createIndex("by-feed-link", "feedLink");
+        feedItemPlayback.createIndex("url", "url");
       },
     });
   }

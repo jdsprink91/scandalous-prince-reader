@@ -1,5 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
+import { updateFeedItemPlayback } from "../actions/feed";
 
 // how to deal with hours?
 function getSecondsToTimeStr(seconds: number): string {
@@ -91,11 +92,11 @@ export class SpMobileAudioPlayer extends LitElement {
   @state()
   _currentTime: number = 0;
 
-  private _getAudioPlayer() {
+  private _getAudioPlayer = () => {
     return document.querySelector<HTMLAudioElement>("#my-audio");
-  }
+  };
 
-  private _togglePlay() {
+  private _togglePlay = () => {
     const audioPlayer = this._getAudioPlayer();
 
     if (audioPlayer) {
@@ -105,31 +106,73 @@ export class SpMobileAudioPlayer extends LitElement {
         audioPlayer.pause();
       }
     }
-  }
+  };
+
+  private _handlePause = () => {
+    this._paused = true;
+  };
+
+  private _handlePlay = () => {
+    this._paused = false;
+  };
+
+  private _handleTimeUpdate = (e: Event) => {
+    if (e.target instanceof HTMLAudioElement) {
+      // don't know when to save, but this seems reasonable
+      if (Math.floor(this._currentTime) !== Math.floor(e.target.currentTime)) {
+        void updateFeedItemPlayback({
+          url: e.target.src,
+          played: false,
+          currentTime: e.target.currentTime,
+        });
+      }
+      this._currentTime = e.target.currentTime;
+    }
+  };
+
+  private _handleDurationChange = (e: Event) => {
+    if (e.target instanceof HTMLAudioElement) {
+      this._duration = e.target.duration;
+    }
+  };
+
+  private _handleEnded = (e: Event) => {
+    if (e.target instanceof HTMLAudioElement) {
+      void updateFeedItemPlayback({
+        url: e.target.src,
+        played: true,
+        currentTime: this._currentTime,
+      });
+    }
+  };
 
   connectedCallback() {
     super.connectedCallback();
     const audioPlayer = this._getAudioPlayer();
     if (audioPlayer) {
-      audioPlayer.addEventListener("pause", () => {
-        this._paused = true;
-      });
+      audioPlayer.addEventListener("pause", this._handlePause);
+      audioPlayer.addEventListener("play", this._handlePlay);
+      audioPlayer.addEventListener("timeupdate", this._handleTimeUpdate);
+      audioPlayer.addEventListener(
+        "durationchange",
+        this._handleDurationChange,
+      );
+      audioPlayer.addEventListener("ended", this._handleEnded);
+    }
+  }
 
-      audioPlayer.addEventListener("play", () => {
-        this._paused = false;
-      });
-
-      audioPlayer.addEventListener("timeupdate", (e) => {
-        if (e.target instanceof HTMLAudioElement) {
-          this._currentTime = e.target.currentTime;
-        }
-      });
-
-      audioPlayer.addEventListener("durationchange", (e) => {
-        if (e.target instanceof HTMLAudioElement) {
-          this._duration = e.target.duration;
-        }
-      });
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    const audioPlayer = this._getAudioPlayer();
+    if (audioPlayer) {
+      audioPlayer.removeEventListener("pause", this._handlePause);
+      audioPlayer.removeEventListener("play", this._handlePlay);
+      audioPlayer.removeEventListener("timeupdate", this._handleTimeUpdate);
+      audioPlayer.removeEventListener(
+        "durationchange",
+        this._handleDurationChange,
+      );
+      audioPlayer.removeEventListener("ended", this._handleEnded);
     }
   }
 
