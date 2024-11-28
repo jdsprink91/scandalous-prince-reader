@@ -94,8 +94,15 @@ export class SpFeedList extends LitElement {
   feedItems: FeedItemCard[] = [];
 
   private async _handlePlayClick(card: FeedItemCard) {
-    openAudioPlayer(card.showName, card.title, card.imgSrc!, card.audioSrc);
+    void openAudioPlayer(
+      card.showName,
+      card.title,
+      card.imgSrc!,
+      card.audioSrc,
+    );
   }
+
+  // TODO: add state that keeps track of which audio is playing.
 
   render() {
     return html` <ul>

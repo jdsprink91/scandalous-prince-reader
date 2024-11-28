@@ -49,8 +49,10 @@ something.
 ## V0.0.5 checklist
 
 - [x] Pull from feed
-- [ ] figure out feed item metadata (save this info an display it)
+- [x] figure out feed item metadata (save this info)
+- [ ] display playback info on feed item row
 - [ ] show feed item as playing when they hit play from feed
+- [ ] nice UX for restarting audio
 - [ ] get play and pause button
 
 ## V0.0.6 checklist

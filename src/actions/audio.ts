@@ -1,4 +1,6 @@
-export function openAudioPlayer(
+import { getSPDB } from "./database";
+
+export async function openAudioPlayer(
   showName: string,
   title: string,
   imgSrc: string,
@@ -22,6 +24,13 @@ export function openAudioPlayer(
 
   // set property here
   audio.src = audioSrc;
+
+  // set the current time if they have played this before
+  const db = await getSPDB();
+  const playbackData = await db.get("feed-item-playback", audioSrc);
+  if (playbackData) {
+    audio.currentTime = playbackData.currentTime;
+  }
 
   // make sure the widget on lock screen looks good
   if ("mediaSession" in navigator) {

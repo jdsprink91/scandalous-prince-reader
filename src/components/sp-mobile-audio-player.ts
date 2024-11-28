@@ -83,18 +83,18 @@ export class SpMobileAudioPlayer extends LitElement {
   @property({ attribute: "img-src" })
   imgSrc!: string;
 
-  @state()
-  _paused: boolean = false;
-
-  @state()
-  _duration: number = 0;
-
-  @state()
-  _currentTime: number = 0;
-
   private _getAudioPlayer = () => {
     return document.querySelector<HTMLAudioElement>("#my-audio");
   };
+
+  @state()
+  _currentTime: number = -1;
+
+  @state()
+  _duration: number = -1;
+
+  @state()
+  _paused: boolean = this._getAudioPlayer()?.paused ?? false;
 
   private _togglePlay = () => {
     const audioPlayer = this._getAudioPlayer();
@@ -158,6 +158,8 @@ export class SpMobileAudioPlayer extends LitElement {
         this._handleDurationChange,
       );
       audioPlayer.addEventListener("ended", this._handleEnded);
+
+      this._currentTime = audioPlayer.currentTime;
     }
   }
 

@@ -29,7 +29,6 @@ export async function addFeed(feed: Feed) {
 export async function updateFeedItemPlayback(
   feedItemPlaybackRow: FeedItemPlaybackRow,
 ) {
-  console.log(feedItemPlaybackRow);
   const db = await getSPDB();
   const tx = db.transaction("feed-item-playback", "readwrite");
   const feedItemPlaybackStore = tx.objectStore("feed-item-playback");
