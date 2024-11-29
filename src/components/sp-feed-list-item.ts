@@ -165,14 +165,6 @@ export class SpFeedListItem extends LitElement {
     }
   };
 
-  private _getButtonText = () => {
-    if (!this.isPlaying) {
-      return "staht";
-    } else {
-      return "stahp";
-    }
-  };
-
   render() {
     return html`
       <div class="header-container">
@@ -192,7 +184,7 @@ export class SpFeedListItem extends LitElement {
           class="play-button"
           @click=${() => this._handlePlayClick(this.feedItem)}
         >
-          ${this._getButtonText()}
+          ${this.isPlaying ? "stahp" : "staht"}
         </button>
       </div>
     `;
