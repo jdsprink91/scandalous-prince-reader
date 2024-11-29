@@ -1,7 +1,11 @@
 import { getSPDB } from "./database";
 
 export function getAudioPlayer() {
-  return document.querySelector<HTMLAudioElement>("#my-audio");
+  const myAudio = document.querySelector<HTMLAudioElement>("#my-audio");
+  if (myAudio === null) {
+    throw new Error("my-audio should be defined in index.html");
+  }
+  return myAudio;
 }
 
 export async function openAudioPlayer(
@@ -10,11 +14,6 @@ export async function openAudioPlayer(
   imgSrc: string,
   audioSrc: string,
 ) {
-  const audio = document.querySelector<HTMLAudioElement>("#my-audio");
-  if (!audio) {
-    return null;
-  }
-
   let player = document.querySelector("sp-mobile-audio-player");
 
   if (!player) {
@@ -27,6 +26,7 @@ export async function openAudioPlayer(
   player.setAttribute("img-src", imgSrc);
 
   // set property here
+  const audio = getAudioPlayer();
   audio.src = audioSrc;
 
   // set the current time if they have played this before

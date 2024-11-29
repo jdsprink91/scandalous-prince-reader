@@ -110,18 +110,14 @@ export class SpFeedListItem extends LitElement {
 
   private _addEventListeners = () => {
     const audioPlayer = getAudioPlayer();
-    if (audioPlayer) {
-      audioPlayer.addEventListener("play", this._handlePlay);
-      audioPlayer.addEventListener("pause", this._hanldePause);
-    }
+    audioPlayer.addEventListener("play", this._handlePlay);
+    audioPlayer.addEventListener("pause", this._hanldePause);
   };
 
   private _removeEventListeners = () => {
     const audioPlayer = getAudioPlayer();
-    if (audioPlayer) {
-      audioPlayer.removeEventListener("play", this._handlePlay);
-      audioPlayer.removeEventListener("pause", this._hanldePause);
-    }
+    audioPlayer.removeEventListener("play", this._handlePlay);
+    audioPlayer.removeEventListener("pause", this._hanldePause);
   };
 
   private _mutationObserverCallback: MutationCallback = (
@@ -143,25 +139,23 @@ export class SpFeedListItem extends LitElement {
 
   private _handlePlayClick = async (card: FeedItemCard) => {
     const audioPlayer = getAudioPlayer();
-    if (audioPlayer) {
-      if (audioPlayer.src === card.audioSrc) {
-        if (audioPlayer.paused) {
-          audioPlayer.play();
-        } else {
-          audioPlayer.pause();
-        }
+    if (audioPlayer.src === card.audioSrc) {
+      if (audioPlayer.paused) {
+        audioPlayer.play();
       } else {
-        await openAudioPlayer(
-          card.showName,
-          card.title,
-          card.imgSrc!,
-          card.audioSrc,
-        );
-
-        this.isPlaying = true;
-        this._addEventListeners();
-        this._mutationObserver.observe(audioPlayer, { attributes: true });
+        audioPlayer.pause();
       }
+    } else {
+      await openAudioPlayer(
+        card.showName,
+        card.title,
+        card.imgSrc!,
+        card.audioSrc,
+      );
+
+      this.isPlaying = true;
+      this._addEventListeners();
+      this._mutationObserver.observe(audioPlayer, { attributes: true });
     }
   };
 

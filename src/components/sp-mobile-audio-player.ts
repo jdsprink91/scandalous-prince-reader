@@ -91,17 +91,14 @@ export class SpMobileAudioPlayer extends LitElement {
   _duration: number = -1;
 
   @state()
-  _paused: boolean = getAudioPlayer()?.paused ?? false;
+  _paused: boolean = getAudioPlayer().paused ?? false;
 
   private _togglePlay = () => {
     const audioPlayer = getAudioPlayer();
-
-    if (audioPlayer) {
-      if (audioPlayer.paused) {
-        audioPlayer.play();
-      } else {
-        audioPlayer.pause();
-      }
+    if (audioPlayer.paused) {
+      audioPlayer.play();
+    } else {
+      audioPlayer.pause();
     }
   };
 
@@ -146,33 +143,26 @@ export class SpMobileAudioPlayer extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     const audioPlayer = getAudioPlayer();
-    if (audioPlayer) {
-      audioPlayer.addEventListener("pause", this._handlePause);
-      audioPlayer.addEventListener("play", this._handlePlay);
-      audioPlayer.addEventListener("timeupdate", this._handleTimeUpdate);
-      audioPlayer.addEventListener(
-        "durationchange",
-        this._handleDurationChange,
-      );
-      audioPlayer.addEventListener("ended", this._handleEnded);
+    audioPlayer.addEventListener("pause", this._handlePause);
+    audioPlayer.addEventListener("play", this._handlePlay);
+    audioPlayer.addEventListener("timeupdate", this._handleTimeUpdate);
+    audioPlayer.addEventListener("durationchange", this._handleDurationChange);
+    audioPlayer.addEventListener("ended", this._handleEnded);
 
-      this._currentTime = audioPlayer.currentTime;
-    }
+    this._currentTime = audioPlayer.currentTime;
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
     const audioPlayer = getAudioPlayer();
-    if (audioPlayer) {
-      audioPlayer.removeEventListener("pause", this._handlePause);
-      audioPlayer.removeEventListener("play", this._handlePlay);
-      audioPlayer.removeEventListener("timeupdate", this._handleTimeUpdate);
-      audioPlayer.removeEventListener(
-        "durationchange",
-        this._handleDurationChange,
-      );
-      audioPlayer.removeEventListener("ended", this._handleEnded);
-    }
+    audioPlayer.removeEventListener("pause", this._handlePause);
+    audioPlayer.removeEventListener("play", this._handlePlay);
+    audioPlayer.removeEventListener("timeupdate", this._handleTimeUpdate);
+    audioPlayer.removeEventListener(
+      "durationchange",
+      this._handleDurationChange,
+    );
+    audioPlayer.removeEventListener("ended", this._handleEnded);
   }
 
   render() {
