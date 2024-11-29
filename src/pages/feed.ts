@@ -1,7 +1,11 @@
 import { css, html, LitElement } from "lit";
 import { Task } from "@lit/task";
 import { customElement } from "lit/decorators.js";
-import { FeedItemTableRow, FeedTableRow } from "../types/database";
+import {
+  FeedItemPlaybackRow,
+  FeedItemTableRow,
+  FeedTableRow,
+} from "../types/database";
 import { getSPDB } from "../actions/database";
 import "../components/sp-feed-list";
 import { FeedItemCard } from "../components/sp-feed-list";
@@ -11,6 +15,7 @@ import { Feed } from "../types/rss.ts";
 
 interface FeedItemWithFeedParent extends FeedItemTableRow {
   feed: FeedTableRow;
+  feedItemPlayback: FeedItemPlaybackRow;
 }
 
 @customElement("sp-feed-page")
@@ -27,6 +32,7 @@ export class SpFeedPage extends LitElement {
     let feedItems = await db.getAllFromIndex("feed-item", "by-iso-date");
     feedItems = feedItems.reverse();
     const feeds = await db.getAll("feed");
+    const feedItemPlayback = await db.getAll("feed-item-playback");
     const feedsByKey = feeds.reduce(
       (acc, feed) => {
         return {
@@ -37,9 +43,20 @@ export class SpFeedPage extends LitElement {
       {} as Record<string, FeedTableRow>,
     );
 
+    const feedItemPlaybackByKey = feedItemPlayback.reduce(
+      (acc, feedItemPlayback) => {
+        return {
+          [feedItemPlayback.url]: feedItemPlayback,
+          ...acc,
+        };
+      },
+      {} as Record<string, FeedItemPlaybackRow>,
+    );
+
     return feedItems.map((feedItem) => {
       return {
         feed: feedsByKey[feedItem.feedLink],
+        feedItemPlayback: feedItemPlaybackByKey[feedItem.enclosure!.url],
         ...feedItem,
       };
     }) as FeedItemWithFeedParent[];
@@ -90,6 +107,7 @@ export class SpFeedPage extends LitElement {
           dateAdded: feedItem.isoDate,
           showName: feedItem.feed.title,
           audioSrc: feedItem.enclosure.url!,
+          duration: feedItem.itunes!.duration!,
           imgSrc,
         };
       })

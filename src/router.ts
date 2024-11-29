@@ -13,6 +13,7 @@ import "./pages/shows";
 import "./components/sp-header";
 import "./components/sp-mobile-footer";
 import "./components/sp-mobile-audio-player";
+import "./components/sp-feed-list-item";
 
 const baseURL: string = import.meta.env.BASE_URL;
 

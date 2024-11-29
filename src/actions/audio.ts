@@ -1,5 +1,9 @@
 import { getSPDB } from "./database";
 
+export function getAudioPlayer() {
+  return document.querySelector<HTMLAudioElement>("#my-audio");
+}
+
 export async function openAudioPlayer(
   showName: string,
   title: string,

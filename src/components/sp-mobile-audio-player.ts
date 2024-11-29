@@ -1,6 +1,7 @@
 import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { updateFeedItemPlayback } from "../actions/feed";
+import { getAudioPlayer } from "../actions/audio";
 
 // how to deal with hours?
 function getSecondsToTimeStr(seconds: number): string {
@@ -83,10 +84,6 @@ export class SpMobileAudioPlayer extends LitElement {
   @property({ attribute: "img-src" })
   imgSrc!: string;
 
-  private _getAudioPlayer = () => {
-    return document.querySelector<HTMLAudioElement>("#my-audio");
-  };
-
   @state()
   _currentTime: number = -1;
 
@@ -94,10 +91,10 @@ export class SpMobileAudioPlayer extends LitElement {
   _duration: number = -1;
 
   @state()
-  _paused: boolean = this._getAudioPlayer()?.paused ?? false;
+  _paused: boolean = getAudioPlayer()?.paused ?? false;
 
   private _togglePlay = () => {
-    const audioPlayer = this._getAudioPlayer();
+    const audioPlayer = getAudioPlayer();
 
     if (audioPlayer) {
       if (audioPlayer.paused) {
@@ -148,7 +145,7 @@ export class SpMobileAudioPlayer extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    const audioPlayer = this._getAudioPlayer();
+    const audioPlayer = getAudioPlayer();
     if (audioPlayer) {
       audioPlayer.addEventListener("pause", this._handlePause);
       audioPlayer.addEventListener("play", this._handlePlay);
@@ -165,7 +162,7 @@ export class SpMobileAudioPlayer extends LitElement {
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    const audioPlayer = this._getAudioPlayer();
+    const audioPlayer = getAudioPlayer();
     if (audioPlayer) {
       audioPlayer.removeEventListener("pause", this._handlePause);
       audioPlayer.removeEventListener("play", this._handlePlay);
