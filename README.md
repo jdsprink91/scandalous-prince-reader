@@ -61,7 +61,7 @@ something.
 - [ ] Build page for individual feed item
 - [ ] Get rid of `LiteDomLitElement`
 
-## V0.0.8 checklist
+## V0.0.7 checklist
 
 Tons of style updates
 
@@ -69,7 +69,7 @@ Tons of style updates
 - [ ] Error states
 - [ ] Add hour to mobile audio player
 
-## V0.0.7 checklist
+## V0.0.8 checklist
 
 - [ ] write about page (links on how to install PWA)
 - [ ] search

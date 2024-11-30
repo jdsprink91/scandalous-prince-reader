@@ -70,6 +70,10 @@ export class SpMobileAudioPlayer extends LitElement {
     progress {
       flex-grow: 1;
     }
+
+    sp-play-pause-button {
+      width: 50px;
+    }
   `;
 
   @property({ attribute: "url" })
@@ -91,7 +95,7 @@ export class SpMobileAudioPlayer extends LitElement {
   _duration: number = -1;
 
   @state()
-  _paused: boolean = getAudioPlayer().paused ?? false;
+  playing: boolean = !getAudioPlayer().paused || false;
 
   private _togglePlay = () => {
     const audioPlayer = getAudioPlayer();
@@ -103,11 +107,11 @@ export class SpMobileAudioPlayer extends LitElement {
   };
 
   private _handlePause = () => {
-    this._paused = true;
+    this.playing = false;
   };
 
   private _handlePlay = () => {
-    this._paused = false;
+    this.playing = true;
   };
 
   private _handleTimeUpdate = (e: Event) => {
@@ -178,9 +182,10 @@ export class SpMobileAudioPlayer extends LitElement {
               <p class="show-title">${this.title}</p>
               <p class="title">${this.showName}</p>
             </div>
-            <button id="play-pause-control" @click=${this._togglePlay}>
-              ${this._paused ? "staht" : "stahp"}
-            </button>
+            <sp-play-pause-button
+              .playing=${this.playing}
+              @click=${this._togglePlay}
+            ></sp-play-pause-button>
           </div>
         </div>
         <div class="progress-container">

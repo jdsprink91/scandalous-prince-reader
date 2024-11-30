@@ -89,8 +89,9 @@ export class SpFeedListItem extends LitElement {
       margin-left: 0.5rem;
     }
 
-    .play-button {
+    sp-play-pause-button {
       margin-left: auto;
+      width: 30px;
     }
   `;
 
@@ -98,14 +99,14 @@ export class SpFeedListItem extends LitElement {
   feedItem: FeedItemCard;
 
   @state()
-  isPlaying: boolean = false;
+  playing: boolean = false;
 
   private _handlePlay = () => {
-    this.isPlaying = true;
+    this.playing = true;
   };
 
   private _hanldePause = () => {
-    this.isPlaying = false;
+    this.playing = false;
   };
 
   private _addEventListeners = () => {
@@ -164,7 +165,7 @@ export class SpFeedListItem extends LitElement {
         this.feedItem.audioSrc,
       );
 
-      this.isPlaying = true;
+      this.playing = true;
       this._connectToAudioPlayer();
     }
   };
@@ -175,7 +176,7 @@ export class SpFeedListItem extends LitElement {
     if (audioPlayer.src === this.feedItem.audioSrc) {
       this._connectToAudioPlayer();
       if (!audioPlayer.paused) {
-        this.isPlaying = true;
+        this.playing = true;
       }
     }
   }
@@ -203,9 +204,10 @@ export class SpFeedListItem extends LitElement {
         <time .datetime=${this.feedItem.duration}
           >${niceTime(this.feedItem.duration)}</time
         >
-        <button class="play-button" @click=${() => this._handlePlayClick()}>
-          ${this.isPlaying ? "stahp" : "staht"}
-        </button>
+        <sp-play-pause-button
+          .playing=${this.playing}
+          @click=${() => this._handlePlayClick()}
+        ></sp-play-pause-button>
       </div>
     `;
   }
