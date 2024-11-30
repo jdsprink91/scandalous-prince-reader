@@ -14,6 +14,10 @@ export class SpFeedList extends LitElement {
       padding-left: 0;
     }
 
+    li {
+      list-style: none;
+    }
+
     li + li {
       padding-top: 0.75rem;
       border-top: 1px solid black;

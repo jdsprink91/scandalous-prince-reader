@@ -125,10 +125,11 @@ export class SpFeedListItem extends LitElement {
     observer,
   ) => {
     for (const mutation of mutationList) {
+      // we only attach this observer after we know that the audio player has
+      // set the src to this feed items source. Thus, if this is called,
+      // we know that the src has changed away to something else.
       if (mutation.type === "attributes" && mutation.attributeName === "src") {
-        this.isPlaying = false;
-        this._removeEventListeners();
-        observer.disconnect();
+        this._disconnectFromAudioPlayer(observer);
       }
     }
   };
@@ -137,9 +138,19 @@ export class SpFeedListItem extends LitElement {
     this._mutationObserverCallback,
   );
 
-  private _handlePlayClick = async (card: FeedItemCard) => {
+  private _connectToAudioPlayer = () => {
+    this._addEventListeners();
+    this._mutationObserver.observe(getAudioPlayer(), { attributes: true });
+  };
+
+  private _disconnectFromAudioPlayer = (observer: MutationObserver) => {
+    this._removeEventListeners();
+    observer.disconnect();
+  };
+
+  private _handlePlayClick = async () => {
     const audioPlayer = getAudioPlayer();
-    if (audioPlayer.src === card.audioSrc) {
+    if (audioPlayer.src === this.feedItem.audioSrc) {
       if (audioPlayer.paused) {
         audioPlayer.play();
       } else {
@@ -147,17 +158,35 @@ export class SpFeedListItem extends LitElement {
       }
     } else {
       await openAudioPlayer(
-        card.showName,
-        card.title,
-        card.imgSrc!,
-        card.audioSrc,
+        this.feedItem.showName,
+        this.feedItem.title,
+        this.feedItem.imgSrc!,
+        this.feedItem.audioSrc,
       );
 
       this.isPlaying = true;
-      this._addEventListeners();
-      this._mutationObserver.observe(audioPlayer, { attributes: true });
+      this._connectToAudioPlayer();
     }
   };
+
+  connectedCallback() {
+    super.connectedCallback();
+    const audioPlayer = getAudioPlayer();
+    if (audioPlayer.src === this.feedItem.audioSrc) {
+      this._connectToAudioPlayer();
+      if (!audioPlayer.paused) {
+        this.isPlaying = true;
+      }
+    }
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    const audioPlayer = getAudioPlayer();
+    if (audioPlayer.src === this.feedItem.audioSrc) {
+      this._disconnectFromAudioPlayer(this._mutationObserver);
+    }
+  }
 
   render() {
     return html`
@@ -174,10 +203,7 @@ export class SpFeedListItem extends LitElement {
         <time .datetime=${this.feedItem.duration}
           >${niceTime(this.feedItem.duration)}</time
         >
-        <button
-          class="play-button"
-          @click=${() => this._handlePlayClick(this.feedItem)}
-        >
+        <button class="play-button" @click=${() => this._handlePlayClick()}>
           ${this.isPlaying ? "stahp" : "staht"}
         </button>
       </div>
