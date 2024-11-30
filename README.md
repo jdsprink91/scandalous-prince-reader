@@ -51,7 +51,7 @@ something.
 - [x] Pull from feed
 - [x] figure out feed item metadata (save this info)
 - [x] show feed item as playing when they hit play from feed
-- [ ] get play and pause button
+- [x] get play and pause button
 - [ ] display playback info on feed item row (played / time left)
 
 ## V0.0.6 checklist

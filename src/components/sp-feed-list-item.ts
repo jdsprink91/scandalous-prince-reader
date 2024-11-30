@@ -105,20 +105,20 @@ export class SpFeedListItem extends LitElement {
     this.playing = true;
   };
 
-  private _hanldePause = () => {
+  private _handlePause = () => {
     this.playing = false;
   };
 
   private _addEventListeners = () => {
     const audioPlayer = getAudioPlayer();
     audioPlayer.addEventListener("play", this._handlePlay);
-    audioPlayer.addEventListener("pause", this._hanldePause);
+    audioPlayer.addEventListener("pause", this._handlePause);
   };
 
   private _removeEventListeners = () => {
     const audioPlayer = getAudioPlayer();
     audioPlayer.removeEventListener("play", this._handlePlay);
-    audioPlayer.removeEventListener("pause", this._hanldePause);
+    audioPlayer.removeEventListener("pause", this._handlePause);
   };
 
   private _mutationObserverCallback: MutationCallback = (
