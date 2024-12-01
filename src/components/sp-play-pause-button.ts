@@ -20,6 +20,7 @@ export class SpPlayPauseButton extends LitElement {
       cursor: pointer;
 
       width: 100%;
+      height: 100%;
       aspect-ratio: 1 / 1;
       display: flex;
       align-items: center;
