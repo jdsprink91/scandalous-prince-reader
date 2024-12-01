@@ -8,10 +8,10 @@ import {
 } from "../types/database";
 import { getSPDB } from "../actions/database";
 import "../components/sp-feed-list";
-import { FeedItemCard } from "../components/sp-feed-list";
 import "../components/sp-loading-page.ts";
 import { addFeed } from "../actions/feed.ts";
 import { Feed } from "../types/rss.ts";
+import { FeedItemCard } from "../components/sp-feed-list-item.ts";
 
 interface FeedItemWithFeedParent extends FeedItemTableRow {
   feed: FeedTableRow;
@@ -97,18 +97,23 @@ export class SpFeedPage extends LitElement {
           !feedItem.isoDate ||
           !feedItem.feed.title ||
           !feedItem.enclosure ||
-          !imgSrc
+          !feedItem.enclosure.url ||
+          !imgSrc ||
+          !feedItem.itunes ||
+          !feedItem.itunes.duration
         ) {
           return null;
         }
+
         return {
           title: feedItem.title,
           contentSnippet: feedItem.contentSnippet,
           dateAdded: feedItem.isoDate,
           showName: feedItem.feed.title,
-          audioSrc: feedItem.enclosure.url!,
-          duration: feedItem.itunes!.duration!,
+          audioSrc: feedItem.enclosure.url,
+          duration: feedItem.itunes.duration,
           imgSrc,
+          feedItemPlayback: feedItem.feedItemPlayback,
         };
       })
       .filter((card) => card !== null);
@@ -121,9 +126,6 @@ export class SpFeedPage extends LitElement {
         <button @click=${() => this._refreshFeedTask.run()}>
           Refresh Feed
         </button>
-      </div>
-      <div>
-        <input />
       </div>
       <sp-feed-list .feedItems=${feedItemCards}></sp-feed-list>
     `;

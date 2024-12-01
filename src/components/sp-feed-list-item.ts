@@ -1,29 +1,48 @@
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import duration from "dayjs/plugin/duration";
 import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { getAudioPlayer, openAudioPlayer } from "../actions/audio";
+import { FeedItemPlaybackRow } from "../types/database";
+
+dayjs.extend(customParseFormat);
+dayjs.extend(duration);
 
 export interface FeedItemCard {
   audioSrc: string;
   title: string;
   showName: string;
   duration: string;
+  feedItemPlayback?: FeedItemPlaybackRow;
   contentSnippet?: string;
   dateAdded?: Date;
   imgSrc?: string;
 }
 
-function niceTime(duration: string) {
-  const splitDuration = duration.split(":");
-  if (splitDuration.length === 2) {
-    return `${Number(splitDuration[0])} min`;
+function niceTime(duration: duration.Duration) {
+  const hours = duration.get("h");
+  const minutes = duration.get("m");
+  const hourString = hours
+    ? `${duration.get("h")} hour${hours > 1 ? "s" : ""}`
+    : "";
+  const minuteString = minutes
+    ? `${duration.get("m")} minute${minutes > 1 ? "s" : ""} `
+    : "";
+
+  if (hourString && !minuteString) {
+    return hourString;
   }
 
-  if (splitDuration.length === 3) {
-    return `${Number(splitDuration[0])} hr, ${Number(splitDuration[1])} min`;
+  if (hourString && minuteString) {
+    return `${hourString}, ${minuteString}`;
   }
 
-  return duration;
+  if (minuteString) {
+    return minuteString;
+  }
+
+  return null;
 }
 
 @customElement("sp-feed-list-item")
@@ -87,6 +106,10 @@ export class SpFeedListItem extends LitElement {
 
     time {
       margin-left: 0.5rem;
+    }
+
+    .time-modifier {
+      margin-left: 0.25rem;
     }
 
     sp-play-pause-button {
@@ -170,6 +193,37 @@ export class SpFeedListItem extends LitElement {
     }
   };
 
+  private _renderDuration = () => {
+    const convertedTime = dayjs(this.feedItem.duration, "HH:mm:ss");
+    const duration = dayjs.duration({
+      hours: convertedTime.hour(),
+      minutes: convertedTime.minute(),
+      seconds: convertedTime.second(),
+    });
+    if (this.feedItem.feedItemPlayback?.played) {
+      return html`
+        <time .datetime=${this.feedItem.duration}>${niceTime(duration)}</time>
+        <p class="time-modifier">Played!</p>
+      `;
+    }
+
+    if (this.feedItem.feedItemPlayback?.currentTime) {
+      const timePlayed = Math.floor(this.feedItem.feedItemPlayback.currentTime);
+      const timeLeft = duration.subtract({ seconds: timePlayed });
+
+      return html`
+        <time .datetime=${timeLeft.format("HH:mm:ss")}
+          >${niceTime(timeLeft)}</time
+        >
+        <p class="time-modifier">remaining</p>
+      `;
+    }
+
+    return html`
+      <time .datetime=${this.feedItem.duration}>${niceTime(duration)}</time>
+    `;
+  };
+
   connectedCallback() {
     super.connectedCallback();
     const audioPlayer = getAudioPlayer();
@@ -201,9 +255,7 @@ export class SpFeedListItem extends LitElement {
       <p class="content-snippet">${this.feedItem.contentSnippet}</p>
       <div class="date-and-action-container">
         <date>${dayjs(this.feedItem.dateAdded).format("MMM D, YYYY")}</date>
-        <time .datetime=${this.feedItem.duration}
-          >${niceTime(this.feedItem.duration)}</time
-        >
+        ${this._renderDuration()}
         <sp-play-pause-button
           .playing=${this.playing}
           @click=${() => this._handlePlayClick()}
