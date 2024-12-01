@@ -9,8 +9,7 @@ import {
 import { getSPDB } from "../actions/database";
 import "../components/sp-feed-list";
 import "../components/sp-loading-page.ts";
-import { addFeed } from "../actions/feed.ts";
-import { Feed } from "../types/rss.ts";
+import { bustFeedItemCache, fetchFeedItems } from "../actions/feed.ts";
 import { FeedItemCard } from "../components/sp-feed-list-item.ts";
 
 interface FeedItemWithFeedParent extends FeedItemTableRow {
@@ -29,19 +28,8 @@ export class SpFeedPage extends LitElement {
 
   private _getFeed = async () => {
     const db = await getSPDB();
-    let feedItems = await db.getAllFromIndex("feed-item", "by-iso-date");
-    feedItems = feedItems.reverse();
-    const feeds = await db.getAll("feed");
+    const feedItems = await fetchFeedItems();
     const feedItemPlayback = await db.getAll("feed-item-playback");
-    const feedsByKey = feeds.reduce(
-      (acc, feed) => {
-        return {
-          [feed.link!]: feed,
-          ...acc,
-        };
-      },
-      {} as Record<string, FeedTableRow>,
-    );
 
     const feedItemPlaybackByKey = feedItemPlayback.reduce(
       (acc, feedItemPlayback) => {
@@ -55,7 +43,6 @@ export class SpFeedPage extends LitElement {
 
     return feedItems.map((feedItem) => {
       return {
-        feed: feedsByKey[feedItem.feedLink],
         feedItemPlayback: feedItemPlaybackByKey[feedItem.enclosure!.url],
         ...feedItem,
       };
@@ -71,18 +58,7 @@ export class SpFeedPage extends LitElement {
 
   private _refreshFeedTask = new Task(this, {
     task: async () => {
-      const db = await getSPDB();
-      const feeds = await db.getAll("feed");
-      const feedUrls = feeds
-        .map((feed) => encodeURIComponent(feed.feedUrl!))
-        .join(",");
-
-      const searchParams = new URLSearchParams(`feeds=${feedUrls}`);
-      const response = await fetch(`/api/fetch-feed?${searchParams}`, {
-        method: "get",
-      });
-      const feedUpdates = await response.json();
-      await Promise.all(feedUpdates.map((feed: Feed) => addFeed(feed)));
+      bustFeedItemCache();
       return this._getFeed();
     },
   });

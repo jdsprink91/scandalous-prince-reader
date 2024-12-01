@@ -1,7 +1,7 @@
 import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
-import { updateFeedItemPlayback } from "../actions/feed";
 import { getAudioPlayer } from "../actions/audio";
+import { updateFeedItemPlayback } from "../actions/feedItemPlayback";
 
 // how to deal with hours?
 function getSecondsToTimeStr(seconds: number): string {

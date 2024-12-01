@@ -53,13 +53,12 @@ something.
 - [x] show feed item as playing when they hit play from feed
 - [x] get play and pause button
 - [x] display playback info on feed item row (played / time left)
-- [ ] Remove saving feed items in indexeddb — fetch feed items when app is
+- [x] Remove saving feed items in indexeddb — fetch feed items when app is
       opened and when someone adds or removes a show.
-- [ ] do some checks to make sure that our feed has fields required by db
 
 ## V0.0.6 checklist
 
-- [ ] Add fast forward and reverse buttons
+- [ ] Add fast forward and reverse buttons to mobile audio thing
 
 ## V0.0.7 checklist
 
@@ -70,6 +69,10 @@ something.
 
 ## V0.0.8 checklist
 
+- [ ] virtualize the feed list (this thing is gonna be chonky)
+
+## V0.0.9 checklist
+
 Tons of style updates
 
 - [ ] Get rid of `LiteDomLitElement`. Replace with inline style override or
@@ -78,11 +81,11 @@ Tons of style updates
 - [ ] Progress bar moves based on time duration (need to set width on duration)
 - [ ] Error states
 - [ ] Add hour to mobile audio player
+- [ ] refresh feed icon
 
-## V0.0.9 checklist
+## V0.0.10 checklist
 
 - [ ] write about page (links on how to install PWA)
-- [ ] search
 
 # Testing
 
