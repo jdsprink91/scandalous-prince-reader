@@ -48,31 +48,44 @@ something.
 
 ## V0.0.5 checklist
 
-- [ ] Pull from feed
-- [ ] paginate? virtualize?
-- [ ] search
-- [ ] figure out feed item metadata (save this info an display it)
-- [ ] show feed item as playing when they hit play from feed
+- [x] Pull from feed
+- [x] figure out feed item metadata (save this info)
+- [x] show feed item as playing when they hit play from feed
+- [x] get play and pause button
+- [x] display playback info on feed item row (played / time left)
+- [x] Remove saving feed items in indexeddb — fetch feed items when app is
+      opened and when someone adds or removes a show.
 
 ## V0.0.6 checklist
 
-- [ ] backup image for everything
-- [ ] get play and pause button
-- [ ] do some checks to make sure that our feed has fields required by db
-- [ ] Build page for individual feed item
-- [ ] Get rid of `LiteDomLitElement`
+- [ ] Add fast forward and reverse buttons to mobile audio thing
 
 ## V0.0.7 checklist
 
-- [ ] Full page audio player
-- [ ] Add hour to mobile audio player
-- [ ] write about page (links on how to install PWA)
+- [ ] Build page for individual feed item. How to load:
+
+1. If feed item exists in cached feed, then use that.
+2. Use url to get link to rss feed and linke to feed item.
 
 ## V0.0.8 checklist
 
+- [ ] virtualize the feed list (this thing is gonna be chonky)
+
+## V0.0.9 checklist
+
 Tons of style updates
 
+- [ ] Get rid of `LiteDomLitElement`. Replace with inline style override or
+      whatever.
+- [ ] backup image for everything
 - [ ] Progress bar moves based on time duration (need to set width on duration)
+- [ ] Error states
+- [ ] Add hour to mobile audio player
+- [ ] refresh feed icon
+
+## V0.0.10 checklist
+
+- [ ] write about page (links on how to install PWA)
 
 # Testing
 

@@ -12,6 +12,7 @@ interface ExtendedItem {
     explicit?: string;
     categories?: string[];
     keywords?: string[];
+    duration?: string;
   };
 }
 

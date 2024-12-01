@@ -1,5 +1,7 @@
 import { css, html, LitElement } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
+import { getAudioPlayer } from "../actions/audio";
+import { updateFeedItemPlayback } from "../actions/feedItemPlayback";
 
 // how to deal with hours?
 function getSecondsToTimeStr(seconds: number): string {
@@ -68,6 +70,10 @@ export class SpMobileAudioPlayer extends LitElement {
     progress {
       flex-grow: 1;
     }
+
+    sp-play-pause-button {
+      width: 50px;
+    }
   `;
 
   @property({ attribute: "url" })
@@ -83,54 +89,84 @@ export class SpMobileAudioPlayer extends LitElement {
   imgSrc!: string;
 
   @state()
-  _paused: boolean = false;
+  _currentTime: number = -1;
 
   @state()
-  _duration: number = 0;
+  _duration: number = -1;
 
   @state()
-  _currentTime: number = 0;
+  playing: boolean = !getAudioPlayer().paused || false;
 
-  private _getAudioPlayer() {
-    return document.querySelector<HTMLAudioElement>("#my-audio");
-  }
-
-  private _togglePlay() {
-    const audioPlayer = this._getAudioPlayer();
-
-    if (audioPlayer) {
-      if (audioPlayer.paused) {
-        audioPlayer.play();
-      } else {
-        audioPlayer.pause();
-      }
+  private _togglePlay = () => {
+    const audioPlayer = getAudioPlayer();
+    if (audioPlayer.paused) {
+      audioPlayer.play();
+    } else {
+      audioPlayer.pause();
     }
-  }
+  };
+
+  private _handlePause = () => {
+    this.playing = false;
+  };
+
+  private _handlePlay = () => {
+    this.playing = true;
+  };
+
+  private _handleTimeUpdate = (e: Event) => {
+    if (e.target instanceof HTMLAudioElement) {
+      // don't know when to save, but this seems reasonable
+      if (Math.floor(this._currentTime) !== Math.floor(e.target.currentTime)) {
+        void updateFeedItemPlayback({
+          url: e.target.src,
+          played: false,
+          currentTime: e.target.currentTime,
+        });
+      }
+      this._currentTime = e.target.currentTime;
+    }
+  };
+
+  private _handleDurationChange = (e: Event) => {
+    if (e.target instanceof HTMLAudioElement) {
+      this._duration = e.target.duration;
+    }
+  };
+
+  private _handleEnded = (e: Event) => {
+    if (e.target instanceof HTMLAudioElement) {
+      void updateFeedItemPlayback({
+        url: e.target.src,
+        played: true,
+        currentTime: this._currentTime,
+      });
+    }
+  };
 
   connectedCallback() {
     super.connectedCallback();
-    const audioPlayer = this._getAudioPlayer();
-    if (audioPlayer) {
-      audioPlayer.addEventListener("pause", () => {
-        this._paused = true;
-      });
+    const audioPlayer = getAudioPlayer();
+    audioPlayer.addEventListener("pause", this._handlePause);
+    audioPlayer.addEventListener("play", this._handlePlay);
+    audioPlayer.addEventListener("timeupdate", this._handleTimeUpdate);
+    audioPlayer.addEventListener("durationchange", this._handleDurationChange);
+    audioPlayer.addEventListener("ended", this._handleEnded);
 
-      audioPlayer.addEventListener("play", () => {
-        this._paused = false;
-      });
+    this._currentTime = audioPlayer.currentTime;
+  }
 
-      audioPlayer.addEventListener("timeupdate", (e) => {
-        if (e.target instanceof HTMLAudioElement) {
-          this._currentTime = e.target.currentTime;
-        }
-      });
-
-      audioPlayer.addEventListener("durationchange", (e) => {
-        if (e.target instanceof HTMLAudioElement) {
-          this._duration = e.target.duration;
-        }
-      });
-    }
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    const audioPlayer = getAudioPlayer();
+    audioPlayer.removeEventListener("pause", this._handlePause);
+    audioPlayer.removeEventListener("play", this._handlePlay);
+    audioPlayer.removeEventListener("timeupdate", this._handleTimeUpdate);
+    audioPlayer.removeEventListener(
+      "durationchange",
+      this._handleDurationChange,
+    );
+    audioPlayer.removeEventListener("ended", this._handleEnded);
   }
 
   render() {
@@ -146,9 +182,10 @@ export class SpMobileAudioPlayer extends LitElement {
               <p class="show-title">${this.title}</p>
               <p class="title">${this.showName}</p>
             </div>
-            <button id="play-pause-control" @click=${this._togglePlay}>
-              ${this._paused ? "staht" : "stahp"}
-            </button>
+            <sp-play-pause-button
+              .playing=${this.playing}
+              @click=${this._togglePlay}
+            ></sp-play-pause-button>
           </div>
         </div>
         <div class="progress-container">

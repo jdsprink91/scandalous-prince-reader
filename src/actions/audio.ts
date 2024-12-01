@@ -1,14 +1,19 @@
-export function openAudioPlayer(
+import { getSPDB } from "./database";
+
+export function getAudioPlayer() {
+  const myAudio = document.querySelector<HTMLAudioElement>("#my-audio");
+  if (myAudio === null) {
+    throw new Error("my-audio should be defined in index.html");
+  }
+  return myAudio;
+}
+
+export async function openAudioPlayer(
   showName: string,
   title: string,
   imgSrc: string,
   audioSrc: string,
 ) {
-  const audio = document.querySelector<HTMLAudioElement>("#my-audio");
-  if (!audio) {
-    return null;
-  }
-
   let player = document.querySelector("sp-mobile-audio-player");
 
   if (!player) {
@@ -21,7 +26,15 @@ export function openAudioPlayer(
   player.setAttribute("img-src", imgSrc);
 
   // set property here
+  const audio = getAudioPlayer();
   audio.src = audioSrc;
+
+  // set the current time if they have played this before
+  const db = await getSPDB();
+  const playbackData = await db.get("feed-item-playback", audioSrc);
+  if (playbackData) {
+    audio.currentTime = playbackData.currentTime;
+  }
 
   // make sure the widget on lock screen looks good
   if ("mediaSession" in navigator) {

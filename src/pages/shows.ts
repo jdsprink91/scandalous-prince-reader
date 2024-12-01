@@ -4,6 +4,7 @@ import { getSPDB } from "../actions/database";
 import { Task } from "@lit/task";
 import { FeedTableRow } from "../types/database";
 import "../components/sp-show-img";
+import { deleteFeedFromCache } from "../actions/feed";
 
 @customElement("sp-shows-page")
 export class SpShowsPage extends LitElement {
@@ -59,27 +60,14 @@ export class SpShowsPage extends LitElement {
 
   private _deleteShow = async (show: FeedTableRow) => {
     const db = await getSPDB();
-    const tx = db.transaction(
-      ["feed", "feed-item", "feed-item-playback"],
-      "readwrite",
-    );
-    // delete all feed metadata items
-    const feedItemPlaybackStore = tx.objectStore("feed-item-playback");
-    const fipIndex = feedItemPlaybackStore.index("by-feed-link");
-    for await (const cursor of fipIndex.iterate(show.link)) {
-      cursor.delete();
-    }
-
-    // delete all feed items
-    const feedItemObjectStore = tx.objectStore("feed-item");
-    const index = feedItemObjectStore.index("by-feed-link");
-    for await (const cursor of index.iterate(show.link)) {
-      cursor.delete();
-    }
+    const tx = db.transaction(["feed"], "readwrite");
 
     // delete feed
     const feedObjectStore = tx.objectStore("feed");
     feedObjectStore.delete(show.link!);
+
+    // remove feed items from cache
+    deleteFeedFromCache(show.link);
 
     // tell everyone that we're done
     await tx.done;
