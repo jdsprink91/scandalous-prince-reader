@@ -166,6 +166,7 @@ export class SpFeedListItem extends LitElement {
       // we know that the src has changed away to something else.
       if (mutation.type === "attributes" && mutation.attributeName === "src") {
         this._disconnectFromAudioPlayer(observer);
+        this.playing = false;
       }
     }
   };
