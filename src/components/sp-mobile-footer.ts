@@ -8,7 +8,7 @@ export class SpMobileFooter extends LiteDomLitElement {
   pathname: string = "";
 
   private getClass(url: string) {
-    if (this.pathname === url) {
+    if (this.pathname.includes(url)) {
       return "active";
     }
 
