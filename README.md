@@ -52,19 +52,23 @@ something.
 - [x] figure out feed item metadata (save this info)
 - [x] show feed item as playing when they hit play from feed
 - [x] get play and pause button
-- [ ] display playback info on feed item row (played / time left)
+- [x] display playback info on feed item row (played / time left)
 - [ ] Remove saving feed items in indexeddb — fetch feed items when app is
       opened and when someone adds or removes a show.
 - [ ] do some checks to make sure that our feed has fields required by db
 
 ## V0.0.6 checklist
 
+- [ ] Add fast forward and reverse buttons
+
+## V0.0.7 checklist
+
 - [ ] Build page for individual feed item. How to load:
 
 1. If feed item exists in cached feed, then use that.
 2. Use url to get link to rss feed and linke to feed item.
 
-## V0.0.7 checklist
+## V0.0.8 checklist
 
 Tons of style updates
 
@@ -75,7 +79,7 @@ Tons of style updates
 - [ ] Error states
 - [ ] Add hour to mobile audio player
 
-## V0.0.8 checklist
+## V0.0.9 checklist
 
 - [ ] write about page (links on how to install PWA)
 - [ ] search

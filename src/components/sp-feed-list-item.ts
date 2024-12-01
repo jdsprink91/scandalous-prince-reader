@@ -124,6 +124,9 @@ export class SpFeedListItem extends LitElement {
   @state()
   playing: boolean = false;
 
+  @state()
+  currentTime: number | undefined = undefined;
+
   private _handlePlay = () => {
     this.playing = true;
   };
@@ -132,16 +135,25 @@ export class SpFeedListItem extends LitElement {
     this.playing = false;
   };
 
+  private _handleTimeUpdate = (e: Event) => {
+    if (e.target instanceof HTMLAudioElement) {
+      // don't know when to save, but this seems reasonable
+      this.currentTime = e.target.currentTime;
+    }
+  };
+
   private _addEventListeners = () => {
     const audioPlayer = getAudioPlayer();
     audioPlayer.addEventListener("play", this._handlePlay);
     audioPlayer.addEventListener("pause", this._handlePause);
+    audioPlayer.addEventListener("timeupdate", this._handleTimeUpdate);
   };
 
   private _removeEventListeners = () => {
     const audioPlayer = getAudioPlayer();
     audioPlayer.removeEventListener("play", this._handlePlay);
     audioPlayer.removeEventListener("pause", this._handlePause);
+    audioPlayer.removeEventListener("timeupdate", this._handleTimeUpdate);
   };
 
   private _mutationObserverCallback: MutationCallback = (
@@ -200,6 +212,7 @@ export class SpFeedListItem extends LitElement {
       minutes: convertedTime.minute(),
       seconds: convertedTime.second(),
     });
+
     if (this.feedItem.feedItemPlayback?.played) {
       return html`
         <time .datetime=${this.feedItem.duration}>${niceTime(duration)}</time>
@@ -207,8 +220,8 @@ export class SpFeedListItem extends LitElement {
       `;
     }
 
-    if (this.feedItem.feedItemPlayback?.currentTime) {
-      const timePlayed = Math.floor(this.feedItem.feedItemPlayback.currentTime);
+    if (this.currentTime) {
+      const timePlayed = Math.floor(this.currentTime);
       const timeLeft = duration.subtract({ seconds: timePlayed });
 
       return html`
@@ -233,6 +246,8 @@ export class SpFeedListItem extends LitElement {
         this.playing = true;
       }
     }
+
+    this.currentTime = this.feedItem.feedItemPlayback?.currentTime;
   }
 
   disconnectedCallback() {
