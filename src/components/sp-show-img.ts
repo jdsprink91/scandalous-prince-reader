@@ -18,6 +18,6 @@ export class SpShowImg extends LitElement {
   src: string | undefined;
 
   render() {
-    return html`<img src=${ifDefined(this.src)} /> `;
+    return html`<img src=${ifDefined(this.src)} loading="lazy" /> `;
   }
 }
