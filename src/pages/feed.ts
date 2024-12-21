@@ -76,7 +76,8 @@ export class SpFeedPage extends LitElement {
           !feedItem.enclosure.url ||
           !imgSrc ||
           !feedItem.itunes ||
-          !feedItem.itunes.duration
+          !feedItem.itunes.duration ||
+          !feedItem.guid
         ) {
           return null;
         }
@@ -90,6 +91,7 @@ export class SpFeedPage extends LitElement {
           duration: feedItem.itunes.duration,
           imgSrc,
           feedItemPlayback: feedItem.feedItemPlayback,
+          guid: feedItem.guid,
         };
       })
       .filter((card) => card !== null);

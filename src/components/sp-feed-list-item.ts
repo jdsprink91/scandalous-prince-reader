@@ -14,6 +14,7 @@ export interface FeedItemCard {
   title: string;
   showName: string;
   duration: string;
+  guid: string;
   feedItemPlayback?: FeedItemPlaybackRow;
   contentSnippet?: string;
   dateAdded?: Date;
@@ -57,6 +58,7 @@ export class SpFeedListItem extends LitElement {
       padding-left: 0.25rem;
       padding-right: 0.25rem;
       padding-bottom: 0.75rem;
+      position: relative;
     }
 
     .header-container {
@@ -115,6 +117,15 @@ export class SpFeedListItem extends LitElement {
     sp-play-pause-button {
       margin-left: auto;
       width: 30px;
+      z-index: 2;
+    }
+
+    a {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 100%;
     }
   `;
 
@@ -185,7 +196,8 @@ export class SpFeedListItem extends LitElement {
     observer.disconnect();
   };
 
-  private _handlePlayClick = async () => {
+  private _handlePlayClick = async (event: Event) => {
+    event.preventDefault();
     const audioPlayer = getAudioPlayer();
     if (audioPlayer.src === this.feedItem.audioSrc) {
       if (audioPlayer.paused) {
@@ -260,22 +272,26 @@ export class SpFeedListItem extends LitElement {
   }
 
   render() {
+    const linkToShow = `show/${this.feedItem.guid}`;
     return html`
-      <div class="header-container">
-        <sp-show-img .src=${this.feedItem.imgSrc}></sp-show-img>
-        <div class="ugh">
-          <h2>${this.feedItem.title}</h2>
-          <p>${this.feedItem.showName}</p>
+      <div>
+        <a .href=${linkToShow}></a>
+        <div class="header-container">
+          <sp-show-img .src=${this.feedItem.imgSrc}></sp-show-img>
+          <div class="ugh">
+            <h2>${this.feedItem.title}</h2>
+            <p>${this.feedItem.showName}</p>
+          </div>
         </div>
-      </div>
-      <p class="content-snippet">${this.feedItem.contentSnippet}</p>
-      <div class="date-and-action-container">
-        <date>${dayjs(this.feedItem.dateAdded).format("MMM D, YYYY")}</date>
-        ${this._renderDuration()}
-        <sp-play-pause-button
-          .playing=${this.playing}
-          @click=${() => this._handlePlayClick()}
-        ></sp-play-pause-button>
+        <p class="content-snippet">${this.feedItem.contentSnippet}</p>
+        <div class="date-and-action-container">
+          <date>${dayjs(this.feedItem.dateAdded).format("MMM D, YYYY")}</date>
+          ${this._renderDuration()}
+          <sp-play-pause-button
+            .playing=${this.playing}
+            @click=${this._handlePlayClick}
+          ></sp-play-pause-button>
+        </div>
       </div>
     `;
   }
