@@ -22,7 +22,6 @@ export class SpShow extends LitElement {
   });
 
   private _renderShow = (feedItemUgh: FeedItemUgh | undefined) => {
-    console.log(feedItemUgh);
     return html`
       <h1>${feedItemUgh?.title}</h1>
       <h2>${feedItemUgh?.feed.title}</h2>
@@ -36,6 +35,8 @@ export class SpShow extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
+    // sometimes, we get here from scrolling down to the show and it doesn't
+    // pop back up when we want to
     document.documentElement.scrollTo(0, 0);
   }
 
