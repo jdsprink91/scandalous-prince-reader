@@ -5,7 +5,6 @@ import { css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { getAudioPlayer, openAudioPlayer } from "../actions/audio";
 import { FeedItemPlaybackRow } from "../types/database";
-import { getPrettyDuration, niceTime } from "../utils/date";
 import { AudioIntegratedElement } from "./audio-integrated-element";
 
 dayjs.extend(customParseFormat);
@@ -138,8 +137,7 @@ export class SpFeedListItem extends AudioIntegratedElement {
     observer.disconnect();
   };
 
-  private _handlePlayClick = async (event: Event) => {
-    event.preventDefault();
+  private _handlePlayClick = async () => {
     const audioPlayer = getAudioPlayer();
     if (audioPlayer.src === this.feedItem.audioSrc) {
       if (audioPlayer.paused) {
@@ -160,32 +158,6 @@ export class SpFeedListItem extends AudioIntegratedElement {
     }
   };
 
-  private _renderDuration = () => {
-    const duration = getPrettyDuration(this.feedItem.duration);
-    if (this.feedItem.feedItemPlayback?.played) {
-      return html`
-        <time .datetime=${this.feedItem.duration}>${niceTime(duration)}</time>
-        <p class="time-modifier">Played!</p>
-      `;
-    }
-
-    if (this.currentTime) {
-      const timePlayed = Math.floor(this.currentTime);
-      const timeLeft = duration.subtract({ seconds: timePlayed });
-
-      return html`
-        <time .datetime=${timeLeft.format("HH:mm:ss")}
-          >${niceTime(timeLeft)}</time
-        >
-        <p class="time-modifier">remaining</p>
-      `;
-    }
-
-    return html`
-      <time .datetime=${this.feedItem.duration}>${niceTime(duration)}</time>
-    `;
-  };
-
   connectedCallback() {
     super.connectedCallback();
     const audioPlayer = getAudioPlayer();
@@ -196,6 +168,7 @@ export class SpFeedListItem extends AudioIntegratedElement {
       }
     }
 
+    this.ended = this.feedItem.feedItemPlayback?.played ?? false;
     this.currentTime = this.feedItem.feedItemPlayback?.currentTime;
   }
 
@@ -222,7 +195,7 @@ export class SpFeedListItem extends AudioIntegratedElement {
         <p class="content-snippet">${this.feedItem.contentSnippet}</p>
         <div class="date-and-action-container">
           <date>${dayjs(this.feedItem.dateAdded).format("MMM D, YYYY")}</date>
-          ${this._renderDuration()}
+          ${this._renderDuration(this.feedItem.duration)}
           <sp-play-pause-button
             .playing=${this.playing}
             @click=${this._handlePlayClick}

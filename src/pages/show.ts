@@ -5,7 +5,6 @@ import { Task } from "@lit/task";
 import dayjs from "dayjs";
 import DOMPurify from "dompurify";
 import { unsafeHTML } from "lit/directives/unsafe-html.js";
-import { getPrettyDuration, niceTime } from "../utils/date";
 import { AudioIntegratedElement } from "../components/audio-integrated-element";
 import { getAudioPlayer, openAudioPlayer } from "../actions/audio";
 import { getSPDB } from "../actions/database";
@@ -21,6 +20,10 @@ export class SpShow extends AudioIntegratedElement {
     sp-play-pause-button {
       margin-left: auto;
       width: 30px;
+    }
+
+    .time-modifier {
+      margin-left: 0.25rem;
     }
   `;
 
@@ -53,6 +56,7 @@ export class SpShow extends AudioIntegratedElement {
       const db = await getSPDB();
       const feedItemPlayback = await db.get("feed-item-playback", url);
 
+      this.ended = feedItemPlayback?.played ?? false;
       this.currentTime = feedItemPlayback?.currentTime;
       return theThing;
     },
@@ -60,8 +64,7 @@ export class SpShow extends AudioIntegratedElement {
   });
 
   private _handlePlayClick =
-    (feedItemUgh: FeedItemUgh | undefined) => async (event: Event) => {
-      event.preventDefault();
+    (feedItemUgh: FeedItemUgh | undefined) => async () => {
       if (feedItemUgh && feedItemUgh.enclosure?.url) {
         const audioPlayer = getAudioPlayer();
         if (audioPlayer.src === feedItemUgh.enclosure?.url) {
@@ -85,16 +88,12 @@ export class SpShow extends AudioIntegratedElement {
     };
 
   private _renderShow = (feedItemUgh: FeedItemUgh | undefined) => {
-    const duration = getPrettyDuration(feedItemUgh?.itunes?.duration);
     return html`
       <h1>${feedItemUgh?.title}</h1>
       <h2>${feedItemUgh?.feed.title}</h2>
       <date>${dayjs(feedItemUgh?.pubDate).format("MMM D, YYYY")}</date>
-      <!-- GOTTA SLAP SOME PLAYBACK THINGS HERE -->
       <div class="playback">
-        <time .datetime=${duration.format("HH:mm:ss")}
-          >${niceTime(duration)}</time
-        >
+        ${this._renderDuration(feedItemUgh?.itunes?.duration ?? "")}
         <sp-play-pause-button
           .playing=${this.playing}
           @click=${this._handlePlayClick(feedItemUgh)}
