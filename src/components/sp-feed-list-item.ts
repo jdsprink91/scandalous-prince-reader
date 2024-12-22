@@ -1,10 +1,12 @@
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import duration from "dayjs/plugin/duration";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { css, html } from "lit";
+import { customElement, property } from "lit/decorators.js";
 import { getAudioPlayer, openAudioPlayer } from "../actions/audio";
 import { FeedItemPlaybackRow } from "../types/database";
+import { getPrettyDuration, niceTime } from "../utils/date";
+import { AudioIntegratedElement } from "./audio-integrated-element";
 
 dayjs.extend(customParseFormat);
 dayjs.extend(duration);
@@ -21,33 +23,8 @@ export interface FeedItemCard {
   imgSrc?: string;
 }
 
-function niceTime(duration: duration.Duration) {
-  const hours = duration.get("h");
-  const minutes = duration.get("m");
-  const hourString = hours
-    ? `${duration.get("h")} hour${hours > 1 ? "s" : ""}`
-    : "";
-  const minuteString = minutes
-    ? `${duration.get("m")} minute${minutes > 1 ? "s" : ""} `
-    : "";
-
-  if (hourString && !minuteString) {
-    return hourString;
-  }
-
-  if (hourString && minuteString) {
-    return `${hourString}, ${minuteString}`;
-  }
-
-  if (minuteString) {
-    return minuteString;
-  }
-
-  return null;
-}
-
 @customElement("sp-feed-list-item")
-export class SpFeedListItem extends LitElement {
+export class SpFeedListItem extends AudioIntegratedElement {
   static styles = css`
     :host {
       display: flex;
@@ -132,41 +109,6 @@ export class SpFeedListItem extends LitElement {
   @property({ type: Object })
   feedItem: FeedItemCard;
 
-  @state()
-  playing: boolean = false;
-
-  @state()
-  currentTime: number | undefined = undefined;
-
-  private _handlePlay = () => {
-    this.playing = true;
-  };
-
-  private _handlePause = () => {
-    this.playing = false;
-  };
-
-  private _handleTimeUpdate = (e: Event) => {
-    if (e.target instanceof HTMLAudioElement) {
-      // don't know when to save, but this seems reasonable
-      this.currentTime = e.target.currentTime;
-    }
-  };
-
-  private _addEventListeners = () => {
-    const audioPlayer = getAudioPlayer();
-    audioPlayer.addEventListener("play", this._handlePlay);
-    audioPlayer.addEventListener("pause", this._handlePause);
-    audioPlayer.addEventListener("timeupdate", this._handleTimeUpdate);
-  };
-
-  private _removeEventListeners = () => {
-    const audioPlayer = getAudioPlayer();
-    audioPlayer.removeEventListener("play", this._handlePlay);
-    audioPlayer.removeEventListener("pause", this._handlePause);
-    audioPlayer.removeEventListener("timeupdate", this._handleTimeUpdate);
-  };
-
   private _mutationObserverCallback: MutationCallback = (
     mutationList,
     observer,
@@ -219,13 +161,7 @@ export class SpFeedListItem extends LitElement {
   };
 
   private _renderDuration = () => {
-    const convertedTime = dayjs(this.feedItem.duration, "HH:mm:ss");
-    const duration = dayjs.duration({
-      hours: convertedTime.hour(),
-      minutes: convertedTime.minute(),
-      seconds: convertedTime.second(),
-    });
-
+    const duration = getPrettyDuration(this.feedItem.duration);
     if (this.feedItem.feedItemPlayback?.played) {
       return html`
         <time .datetime=${this.feedItem.duration}>${niceTime(duration)}</time>
