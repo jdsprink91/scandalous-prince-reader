@@ -1,10 +1,11 @@
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import duration from "dayjs/plugin/duration";
-import { css, html, LitElement } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { css, html } from "lit";
+import { customElement, property } from "lit/decorators.js";
 import { getAudioPlayer, openAudioPlayer } from "../actions/audio";
 import { FeedItemPlaybackRow } from "../types/database";
+import { AudioIntegratedElement } from "./audio-integrated-element";
 
 dayjs.extend(customParseFormat);
 dayjs.extend(duration);
@@ -14,39 +15,15 @@ export interface FeedItemCard {
   title: string;
   showName: string;
   duration: string;
+  guid: string;
   feedItemPlayback?: FeedItemPlaybackRow;
   contentSnippet?: string;
   dateAdded?: Date;
   imgSrc?: string;
 }
 
-function niceTime(duration: duration.Duration) {
-  const hours = duration.get("h");
-  const minutes = duration.get("m");
-  const hourString = hours
-    ? `${duration.get("h")} hour${hours > 1 ? "s" : ""}`
-    : "";
-  const minuteString = minutes
-    ? `${duration.get("m")} minute${minutes > 1 ? "s" : ""} `
-    : "";
-
-  if (hourString && !minuteString) {
-    return hourString;
-  }
-
-  if (hourString && minuteString) {
-    return `${hourString}, ${minuteString}`;
-  }
-
-  if (minuteString) {
-    return minuteString;
-  }
-
-  return null;
-}
-
 @customElement("sp-feed-list-item")
-export class SpFeedListItem extends LitElement {
+export class SpFeedListItem extends AudioIntegratedElement {
   static styles = css`
     :host {
       display: flex;
@@ -57,6 +34,7 @@ export class SpFeedListItem extends LitElement {
       padding-left: 0.25rem;
       padding-right: 0.25rem;
       padding-bottom: 0.75rem;
+      position: relative;
     }
 
     .header-container {
@@ -115,46 +93,20 @@ export class SpFeedListItem extends LitElement {
     sp-play-pause-button {
       margin-left: auto;
       width: 30px;
+      z-index: 2;
+    }
+
+    a {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 100%;
     }
   `;
 
   @property({ type: Object })
   feedItem: FeedItemCard;
-
-  @state()
-  playing: boolean = false;
-
-  @state()
-  currentTime: number | undefined = undefined;
-
-  private _handlePlay = () => {
-    this.playing = true;
-  };
-
-  private _handlePause = () => {
-    this.playing = false;
-  };
-
-  private _handleTimeUpdate = (e: Event) => {
-    if (e.target instanceof HTMLAudioElement) {
-      // don't know when to save, but this seems reasonable
-      this.currentTime = e.target.currentTime;
-    }
-  };
-
-  private _addEventListeners = () => {
-    const audioPlayer = getAudioPlayer();
-    audioPlayer.addEventListener("play", this._handlePlay);
-    audioPlayer.addEventListener("pause", this._handlePause);
-    audioPlayer.addEventListener("timeupdate", this._handleTimeUpdate);
-  };
-
-  private _removeEventListeners = () => {
-    const audioPlayer = getAudioPlayer();
-    audioPlayer.removeEventListener("play", this._handlePlay);
-    audioPlayer.removeEventListener("pause", this._handlePause);
-    audioPlayer.removeEventListener("timeupdate", this._handleTimeUpdate);
-  };
 
   private _mutationObserverCallback: MutationCallback = (
     mutationList,
@@ -206,38 +158,6 @@ export class SpFeedListItem extends LitElement {
     }
   };
 
-  private _renderDuration = () => {
-    const convertedTime = dayjs(this.feedItem.duration, "HH:mm:ss");
-    const duration = dayjs.duration({
-      hours: convertedTime.hour(),
-      minutes: convertedTime.minute(),
-      seconds: convertedTime.second(),
-    });
-
-    if (this.feedItem.feedItemPlayback?.played) {
-      return html`
-        <time .datetime=${this.feedItem.duration}>${niceTime(duration)}</time>
-        <p class="time-modifier">Played!</p>
-      `;
-    }
-
-    if (this.currentTime) {
-      const timePlayed = Math.floor(this.currentTime);
-      const timeLeft = duration.subtract({ seconds: timePlayed });
-
-      return html`
-        <time .datetime=${timeLeft.format("HH:mm:ss")}
-          >${niceTime(timeLeft)}</time
-        >
-        <p class="time-modifier">remaining</p>
-      `;
-    }
-
-    return html`
-      <time .datetime=${this.feedItem.duration}>${niceTime(duration)}</time>
-    `;
-  };
-
   connectedCallback() {
     super.connectedCallback();
     const audioPlayer = getAudioPlayer();
@@ -248,6 +168,7 @@ export class SpFeedListItem extends LitElement {
       }
     }
 
+    this.ended = this.feedItem.feedItemPlayback?.played ?? false;
     this.currentTime = this.feedItem.feedItemPlayback?.currentTime;
   }
 
@@ -260,22 +181,26 @@ export class SpFeedListItem extends LitElement {
   }
 
   render() {
+    const linkToShow = `show/${encodeURIComponent(this.feedItem.guid)}`;
     return html`
-      <div class="header-container">
-        <sp-show-img .src=${this.feedItem.imgSrc}></sp-show-img>
-        <div class="ugh">
-          <h2>${this.feedItem.title}</h2>
-          <p>${this.feedItem.showName}</p>
+      <div>
+        <a .href=${linkToShow}></a>
+        <div class="header-container">
+          <sp-show-img .src=${this.feedItem.imgSrc}></sp-show-img>
+          <div class="ugh">
+            <h2>${this.feedItem.title}</h2>
+            <p>${this.feedItem.showName}</p>
+          </div>
         </div>
-      </div>
-      <p class="content-snippet">${this.feedItem.contentSnippet}</p>
-      <div class="date-and-action-container">
-        <date>${dayjs(this.feedItem.dateAdded).format("MMM D, YYYY")}</date>
-        ${this._renderDuration()}
-        <sp-play-pause-button
-          .playing=${this.playing}
-          @click=${() => this._handlePlayClick()}
-        ></sp-play-pause-button>
+        <p class="content-snippet">${this.feedItem.contentSnippet}</p>
+        <div class="date-and-action-container">
+          <date>${dayjs(this.feedItem.dateAdded).format("MMM D, YYYY")}</date>
+          ${this._renderDuration(this.feedItem.duration)}
+          <sp-play-pause-button
+            .playing=${this.playing}
+            @click=${this._handlePlayClick}
+          ></sp-play-pause-button>
+        </div>
       </div>
     `;
   }

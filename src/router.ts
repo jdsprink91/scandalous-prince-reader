@@ -1,5 +1,3 @@
-// docs for router https://github.com/thepassle/app-tools/blob/master/router/README.md
-
 import { html, TemplateResult } from "lit";
 import "urlpattern-polyfill";
 
@@ -10,6 +8,7 @@ import "./pages/add";
 import "./pages/about";
 import "./pages/landing";
 import "./pages/shows";
+import "./pages/show";
 import "./components/sp-header";
 import "./components/sp-mobile-footer";
 import "./components/sp-mobile-audio-player";
@@ -18,11 +17,11 @@ import "./components/sp-play-pause-button";
 
 const baseURL: string = import.meta.env.BASE_URL;
 
-function getPage(pageContent: TemplateResult) {
+function getPage(pageContent: (context: Context) => TemplateResult) {
   return function (context: Context) {
     return html`
       <sp-header></sp-header>
-      <main>${pageContent}</main>
+      <main>${pageContent(context)}</main>
       <sp-mobile-footer pathname=${context.url.pathname}></sp-mobile-footer>
     `;
   };
@@ -40,23 +39,29 @@ export const router = new Router({
     {
       path: resolveRouterPath("feed"),
       title: "Feed",
-      render: getPage(html`<sp-feed-page></sp-feed-page>`),
+      render: getPage(() => html`<sp-feed-page></sp-feed-page>`),
     },
     {
       path: resolveRouterPath("shows/add"),
       title: "Add Show",
-      render: getPage(html`<sp-add-feed-page></sp-add-feed-page>`),
+      render: getPage(() => html`<sp-add-feed-page></sp-add-feed-page>`),
     },
     {
       path: resolveRouterPath("shows"),
       title: "Shows",
-      render: getPage(html`<sp-shows-page></sp-shows-page>`),
+      render: getPage(() => html`<sp-shows-page></sp-shows-page>`),
     },
-
     {
       path: resolveRouterPath("about"),
       title: "About",
-      render: getPage(html`<sp-about-page></sp-about-page>`),
+      render: getPage(() => html`<sp-about-page></sp-about-page>`),
+    },
+    {
+      path: resolveRouterPath("show/:guid"),
+      title: ({ params }) => params?.title || "Show",
+      render: getPage(
+        ({ params }) => html`<sp-show .guid=${params.guid}></sp-show>`,
+      ),
     },
   ],
 });

@@ -58,18 +58,22 @@ something.
 
 ## V0.0.6 checklist
 
-- [ ] Add fast forward and reverse buttons to mobile audio thing
-
-## V0.0.7 checklist
-
-- [ ] Build page for individual feed item. How to load:
+- [x] Build page for individual feed item. How to load:
 
 1. If feed item exists in cached feed, then use that.
 2. Use url to get link to rss feed and linke to feed item.
 
+- [x] write about page
+
+## V0.0.7 checklist
+
+- [ ] change ui to be show driven. Only show feed for show!
+- [ ] figure out how to load shows
+
 ## V0.0.8 checklist
 
-- [ ] virtualize the feed list (this thing is gonna be chonky)
+- [ ] add full page audio page
+- [ ] Add audio scrubber / playback speed
 
 ## V0.0.9 checklist
 
@@ -82,10 +86,7 @@ Tons of style updates
 - [ ] Error states
 - [ ] Add hour to mobile audio player
 - [ ] refresh feed icon
-
-## V0.0.10 checklist
-
-- [ ] write about page (links on how to install PWA)
+- [ ] fill out style checklist per page.
 
 # Testing
 
@@ -93,4 +94,7 @@ Some test urls
 
 - https://shoptalkshow.com/feed/podcast
 - https://feed.podbean.com/demolisten/feed.xml
-- https://www.thisamericanlife.org/podcast/rss.xml
+- https://feeds.megaphone.fm/tamc9058360933
+- https://feeds.buzzsprout.com/1004689.rss
+
+this list has a good amount of style and rss feed issues
