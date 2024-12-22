@@ -272,7 +272,7 @@ export class SpFeedListItem extends LitElement {
   }
 
   render() {
-    const linkToShow = `show/${this.feedItem.guid}`;
+    const linkToShow = `show/${encodeURIComponent(this.feedItem.guid)}`;
     return html`
       <div>
         <a .href=${linkToShow}></a>
