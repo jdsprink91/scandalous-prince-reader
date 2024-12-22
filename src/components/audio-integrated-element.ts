@@ -76,6 +76,13 @@ export class AudioIntegratedElement extends LitElement {
       );
     }
 
+    if (this.ended) {
+      return html`
+        <time .datetime=${duration}>${niceTime(durationObj)}</time>
+        <p class="time-modifier">Played!</p>
+      `;
+    }
+
     if (this.currentTime) {
       const timePlayed = Math.floor(this.currentTime);
       const timeLeft = durationObj.subtract({ seconds: timePlayed });
@@ -88,9 +95,6 @@ export class AudioIntegratedElement extends LitElement {
       `;
     }
 
-    return html`
-      <time .datetime=${duration}>${niceTime(durationObj)}</time>
-      ${this.ended ? html` <p class="time-modifier">Played!</p> ` : null}
-    `;
+    return html`<time .datetime=${duration}>${niceTime(durationObj)}</time>`;
   };
 }
