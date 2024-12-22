@@ -58,20 +58,22 @@ something.
 
 ## V0.0.6 checklist
 
-- [ ] Build page for individual feed item. How to load:
+- [x] Build page for individual feed item. How to load:
 
 1. If feed item exists in cached feed, then use that.
 2. Use url to get link to rss feed and linke to feed item.
 
-- [ ] write about page
+- [x] write about page
 
 ## V0.0.7 checklist
 
-- [ ] Add fast forward and reverse buttons to mobile audio thing
+- [ ] change ui to be show driven. Only show feed for show!
+- [ ] figure out how to load shows
 
 ## V0.0.8 checklist
 
-- [ ] virtualize the feed list (this thing is gonna be chonky)
+- [ ] add full page audio page
+- [ ] Add audio scrubber / playback speed
 
 ## V0.0.9 checklist
 
@@ -84,6 +86,7 @@ Tons of style updates
 - [ ] Error states
 - [ ] Add hour to mobile audio player
 - [ ] refresh feed icon
+- [ ] fill out style checklist per page.
 
 # Testing
 
