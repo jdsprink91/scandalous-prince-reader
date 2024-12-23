@@ -70,19 +70,19 @@ export async function fetchFeedItems(): Promise<FeedItemUgh[]> {
   return cachedFeedItems;
 }
 
-export async function fetchFeedItem(link: string): Promise<FeedItemUgh[]> {
-  const searchParams = new URLSearchParams(`feeds=${encodeURIComponent(link)}`);
-  const response = await fetch(`/api/fetch-feed?${searchParams}`, {
-    method: "get",
+export async function fetchFeed(link: string): Promise<Feed> {
+  const response = await fetch("/api/read-rss-feed", {
+    method: "post",
+    body: JSON.stringify({
+      q: link,
+    }),
   });
 
-  const feedResponse: Feed[] = await response.json();
-  const feedItems = feedResponse
-    .flatMap(transformFeedIntoFeedItemUgh)
-    .sort(sortFeedItemUghs);
+  if (!response.ok) {
+    throw new Error("whoops");
+  }
 
-  cachedFeedItems = feedItems;
-  return cachedFeedItems;
+  return response.json();
 }
 
 export function bustFeedItemCache() {

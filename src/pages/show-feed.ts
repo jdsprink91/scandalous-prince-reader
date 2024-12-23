@@ -1,21 +1,18 @@
+import RssParser from "rss-parser";
 import { css, html, LitElement } from "lit";
 import { Task } from "@lit/task";
 import { customElement, property } from "lit/decorators.js";
-import {
-  FeedItemPlaybackRow,
-  FeedItemTableRow,
-  FeedTableRow,
-} from "../types/database";
+import { FeedItemPlaybackRow } from "../types/database";
 import { getSPDB } from "../actions/database";
 import "../components/sp-feed-list";
 import "../components/sp-loading-page.ts";
-import { deleteFeedFromCache, fetchFeedItem } from "../actions/feed.ts";
+import { deleteFeedFromCache, fetchFeed } from "../actions/feed.ts";
 import { FeedItemCard } from "../components/sp-feed-list-item.ts";
+import { ExtendedItem } from "../types/rss.ts";
 
-interface FeedItemWithFeedParent extends FeedItemTableRow {
-  feed: FeedTableRow;
-  feedItemPlayback: FeedItemPlaybackRow;
-}
+type FeedWithPlaybackInfo = RssParser.Output<
+  ExtendedItem & { feedItemPlayback: FeedItemPlaybackRow }
+>;
 
 @customElement("sp-show-feed-page")
 export class SpShowFeedPage extends LitElement {
@@ -30,7 +27,7 @@ export class SpShowFeedPage extends LitElement {
   `;
 
   private _getFeed = async () => {
-    const feedItems = await fetchFeedItem(decodeURIComponent(this.link));
+    const feed = await fetchFeed(decodeURIComponent(this.link));
     const db = await getSPDB();
     const feedItemPlayback = await db.getAll("feed-item-playback");
 
@@ -44,12 +41,15 @@ export class SpShowFeedPage extends LitElement {
       {} as Record<string, FeedItemPlaybackRow>,
     );
 
-    return feedItems.map((feedItem) => {
-      return {
-        feedItemPlayback: feedItemPlaybackByKey[feedItem.enclosure!.url],
-        ...feedItem,
-      };
-    }) as FeedItemWithFeedParent[];
+    return {
+      ...feed,
+      items: feed.items.map((item) => {
+        return {
+          feedItemPlayback: feedItemPlaybackByKey[item.enclosure!.url],
+          ...item,
+        };
+      }),
+    };
   };
 
   private _feedTask = new Task(this, {
@@ -76,23 +76,24 @@ export class SpShowFeedPage extends LitElement {
     window.location.href = "/shows";
   };
 
-  private _renderFeedList = (feedItems: FeedItemWithFeedParent[]) => {
-    const title = feedItems.find(Boolean)?.feed.title;
-    const link = feedItems.find(Boolean)?.feed.link;
-    const feedItemCards: FeedItemCard[] = feedItems
+  private _renderFeedList = (feed: FeedWithPlaybackInfo) => {
+    console.log(feed);
+    const { title, link } = feed;
+    const feedItemCards: FeedItemCard[] = feed.items
       .map((feedItem) => {
-        const imgSrc = feedItem.itunes?.image ?? feedItem.feed.image?.url;
+        const imgSrc = feedItem.itunes?.image ?? feed.image?.url;
         if (
           !feedItem.title ||
           !feedItem.contentSnippet ||
           !feedItem.isoDate ||
-          !feedItem.feed.title ||
+          !title ||
           !feedItem.enclosure ||
           !feedItem.enclosure.url ||
           !imgSrc ||
           !feedItem.itunes ||
           !feedItem.itunes.duration ||
-          !feedItem.guid
+          !feedItem.guid ||
+          !feedItem.isoDate
         ) {
           return null;
         }
@@ -100,8 +101,8 @@ export class SpShowFeedPage extends LitElement {
         return {
           title: feedItem.title,
           contentSnippet: feedItem.contentSnippet,
-          dateAdded: feedItem.isoDate,
-          showName: feedItem.feed.title,
+          dateAdded: new Date(feedItem.isoDate),
+          showName: title,
           audioSrc: feedItem.enclosure.url,
           duration: feedItem.itunes.duration,
           imgSrc,
