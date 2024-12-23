@@ -1,6 +1,6 @@
 import { css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
-import { FeedItemUgh, fetchFeedItems } from "../actions/feed";
+import { fetchFeed } from "../actions/feed";
 import { Task } from "@lit/task";
 import dayjs from "dayjs";
 import DOMPurify from "dompurify";
@@ -8,6 +8,7 @@ import { unsafeHTML } from "lit/directives/unsafe-html.js";
 import { AudioIntegratedElement } from "../components/audio-integrated-element";
 import { getAudioPlayer, openAudioPlayer } from "../actions/audio";
 import { getSPDB } from "../actions/database";
+import { Feed, FeedItem } from "../types/rss";
 
 @customElement("sp-show")
 export class SpShow extends AudioIntegratedElement {
@@ -28,12 +29,15 @@ export class SpShow extends AudioIntegratedElement {
   `;
 
   @property({ type: String })
+  link: string;
+
+  @property({ type: String })
   guid: string;
 
   private _showTask = new Task(this, {
     task: async () => {
-      const feedItems = await fetchFeedItems();
-      const theThing = feedItems.find(
+      const feed = await fetchFeed(decodeURIComponent(this.link));
+      const theThing = feed.items.find(
         ({ guid }) => guid === decodeURIComponent(this.guid),
       );
 
@@ -43,7 +47,7 @@ export class SpShow extends AudioIntegratedElement {
       const url = theThing.enclosure?.url;
 
       if (url === undefined) {
-        return theThing;
+        return feed;
       }
 
       const audioPlayer = getAudioPlayer();
@@ -58,49 +62,61 @@ export class SpShow extends AudioIntegratedElement {
 
       this.ended = feedItemPlayback?.played ?? false;
       this.currentTime = feedItemPlayback?.currentTime;
-      return theThing;
+
+      return feed;
     },
     args: () => [this.guid],
   });
 
-  private _handlePlayClick =
-    (feedItemUgh: FeedItemUgh | undefined) => async () => {
-      if (feedItemUgh && feedItemUgh.enclosure?.url) {
-        const audioPlayer = getAudioPlayer();
-        if (audioPlayer.src === feedItemUgh.enclosure?.url) {
-          if (audioPlayer.paused) {
-            audioPlayer.play();
-          } else {
-            audioPlayer.pause();
-          }
+  private _handlePlayClick = (feed: Feed, feedItem: FeedItem) => async () => {
+    if (feedItem && feedItem.enclosure?.url) {
+      const audioPlayer = getAudioPlayer();
+      if (audioPlayer.src === feedItem.enclosure?.url) {
+        if (audioPlayer.paused) {
+          audioPlayer.play();
         } else {
-          await openAudioPlayer(
-            feedItemUgh.feed.title!,
-            feedItemUgh.title!,
-            (feedItemUgh.itunes?.image ?? feedItemUgh.feed.image?.url)!,
-            feedItemUgh.enclosure.url,
-          );
-
-          this.playing = true;
-          this._addEventListeners();
+          audioPlayer.pause();
         }
-      }
-    };
+      } else {
+        await openAudioPlayer(
+          feed.title!,
+          feedItem.title!,
+          (feedItem.itunes?.image ?? feed.image?.url)!,
+          feedItem.enclosure.url,
+        );
 
-  private _renderShow = (feedItemUgh: FeedItemUgh | undefined) => {
+        this.playing = true;
+        this._addEventListeners();
+      }
+    }
+  };
+
+  private _renderShow = (feed: Feed | undefined) => {
+    if (feed === undefined) {
+      return null;
+    }
+
+    const feedItem = feed.items.find(
+      ({ guid }) => guid === decodeURIComponent(this.guid),
+    );
+
+    if (!feedItem) {
+      return null;
+    }
+
     return html`
-      <h1>${feedItemUgh?.title}</h1>
-      <h2>${feedItemUgh?.feed.title}</h2>
-      <date>${dayjs(feedItemUgh?.pubDate).format("MMM D, YYYY")}</date>
+      <h1>${feed.title}</h1>
+      <h2>${feed.title}</h2>
+      <date>${dayjs(feedItem.pubDate).format("MMM D, YYYY")}</date>
       <div class="playback">
-        ${this._renderDuration(feedItemUgh?.itunes?.duration ?? "")}
+        ${this._renderDuration(feedItem.itunes?.duration ?? "")}
         <sp-play-pause-button
           .playing=${this.playing}
-          @click=${this._handlePlayClick(feedItemUgh)}
+          @click=${this._handlePlayClick(feed, feedItem)}
         ></sp-play-pause-button>
       </div>
       <section>
-        ${unsafeHTML(DOMPurify.sanitize(feedItemUgh?.content ?? ""))}
+        ${unsafeHTML(DOMPurify.sanitize(feedItem.content ?? ""))}
       </section>
     `;
   };

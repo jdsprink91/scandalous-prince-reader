@@ -54,23 +54,24 @@ export const router = new Router({
     },
     {
       path: resolveRouterPath("shows/:link"),
-      title: "Show",
+      title: "Shows",
       render: getPage(
         ({ params }) =>
           html`<sp-show-feed-page .link=${params.link}></sp-show-feed-page>`,
       ),
     },
     {
+      path: resolveRouterPath("shows/:link/:guid"),
+      title: () => "Show",
+      render: getPage(
+        ({ params }) =>
+          html`<sp-show .link=${params.link} .guid=${params.guid}></sp-show>`,
+      ),
+    },
+    {
       path: resolveRouterPath("about"),
       title: "About",
       render: getPage(() => html`<sp-about-page></sp-about-page>`),
-    },
-    {
-      path: resolveRouterPath("show/:guid"),
-      title: ({ params }) => params?.title || "Show",
-      render: getPage(
-        ({ params }) => html`<sp-show .guid=${params.guid}></sp-show>`,
-      ),
     },
   ],
 });

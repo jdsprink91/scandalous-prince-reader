@@ -16,6 +16,7 @@ export interface FeedItemCard {
   showName: string;
   duration: string;
   guid: string;
+  feedUrl: string;
   feedItemPlayback?: FeedItemPlaybackRow;
   contentSnippet?: string;
   dateAdded?: Date;
@@ -181,7 +182,7 @@ export class SpFeedListItem extends AudioIntegratedElement {
   }
 
   render() {
-    const linkToShow = `show/${encodeURIComponent(this.feedItem.guid)}`;
+    const linkToShow = `shows/${encodeURIComponent(this.feedItem.feedUrl)}/${encodeURIComponent(this.feedItem.guid)}`;
     return html`
       <div>
         <a .href=${linkToShow}></a>

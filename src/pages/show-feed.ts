@@ -77,8 +77,7 @@ export class SpShowFeedPage extends LitElement {
   };
 
   private _renderFeedList = (feed: FeedWithPlaybackInfo) => {
-    console.log(feed);
-    const { title, link } = feed;
+    const { title, link, feedUrl } = feed;
     const feedItemCards: FeedItemCard[] = feed.items
       .map((feedItem) => {
         const imgSrc = feedItem.itunes?.image ?? feed.image?.url;
@@ -93,7 +92,8 @@ export class SpShowFeedPage extends LitElement {
           !feedItem.itunes ||
           !feedItem.itunes.duration ||
           !feedItem.guid ||
-          !feedItem.isoDate
+          !feedItem.isoDate ||
+          !feedUrl
         ) {
           return null;
         }
@@ -108,6 +108,7 @@ export class SpShowFeedPage extends LitElement {
           imgSrc,
           feedItemPlayback: feedItem.feedItemPlayback,
           guid: feedItem.guid,
+          feedUrl,
         };
       })
       .filter((card) => card !== null);
