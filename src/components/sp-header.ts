@@ -46,7 +46,6 @@ export class SpHeader extends LitElement {
         <img src=${moustacheCat} height="100" width="100" />
         <p>Scandalous Prince Reader</p>
         <nav>
-          <a href="/feed" class=${this.getClass("/feed")}>Feed</a>
           <a href="/shows" class=${this.getClass("/shows")}>Shows</a>
           <a href="/about" class=${this.getClass("/about")}>About</a>
         </nav>

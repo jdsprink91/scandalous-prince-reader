@@ -8,6 +8,7 @@ import "./pages/add";
 import "./pages/about";
 import "./pages/landing";
 import "./pages/shows";
+import "./pages/show-feed";
 import "./pages/show";
 import "./components/sp-header";
 import "./components/sp-mobile-footer";
@@ -50,6 +51,14 @@ export const router = new Router({
       path: resolveRouterPath("shows"),
       title: "Shows",
       render: getPage(() => html`<sp-shows-page></sp-shows-page>`),
+    },
+    {
+      path: resolveRouterPath("shows/:link"),
+      title: "Show",
+      render: getPage(
+        ({ params }) =>
+          html`<sp-show-feed-page .link=${params.link}></sp-show-feed-page>`,
+      ),
     },
     {
       path: resolveRouterPath("about"),

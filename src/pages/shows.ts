@@ -23,6 +23,7 @@ export class SpShowsPage extends LitElement {
       list-style: none;
       display: flex;
       padding-bottom: 0.5rem;
+      position: relative;
     }
 
     li + li {
@@ -44,6 +45,14 @@ export class SpShowsPage extends LitElement {
 
     .actions-container {
       display: flex;
+    }
+
+    .show-link {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      width: 100%;
     }
   `;
 
@@ -91,10 +100,16 @@ export class SpShowsPage extends LitElement {
               <sp-show-img .src=${show.image?.url}></sp-show-img>
               <div class="show-title-info-container">
                 <h2>${show.title}</h2>
-                <div class="actions-container">
-                  <button @click=${() => this._deleteShow(show)}>Delete</button>
-                </div>
+                <!-- where do I want to do put this -->
+                <!--<div class="actions-container">-->
+                <!--  <button @click=${() =>
+                  this._deleteShow(show)}>Delete</button>-->
+                <!--</div>-->
               </div>
+              <a
+                class="show-link"
+                href=${`/shows/${encodeURIComponent(show.feedUrl!)}`}
+              ></a>
             </li>`;
           })}
       </ul>

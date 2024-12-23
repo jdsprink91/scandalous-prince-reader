@@ -70,13 +70,28 @@ export async function fetchFeedItems(): Promise<FeedItemUgh[]> {
   return cachedFeedItems;
 }
 
+export async function fetchFeedItem(link: string): Promise<FeedItemUgh[]> {
+  const searchParams = new URLSearchParams(`feeds=${encodeURIComponent(link)}`);
+  const response = await fetch(`/api/fetch-feed?${searchParams}`, {
+    method: "get",
+  });
+
+  const feedResponse: Feed[] = await response.json();
+  const feedItems = feedResponse
+    .flatMap(transformFeedIntoFeedItemUgh)
+    .sort(sortFeedItemUghs);
+
+  cachedFeedItems = feedItems;
+  return cachedFeedItems;
+}
+
 export function bustFeedItemCache() {
   cachedFeedItems = null;
 }
 
 export function deleteFeedFromCache(feedLink: string | undefined) {
   if (!cachedFeedItems) {
-    return 0;
+    return false;
   }
 
   cachedFeedItems = cachedFeedItems.filter((item) => {
