@@ -10,8 +10,8 @@ export class SpLandingPage extends LiteDomLitElement {
       <img src=${moustacheCat} height="200" width="200" />
       <h1>Scandalous Prince RSS</h1>
       <nav class="landing-page__nav">
-        <a class="landing-link" href="/feed">Feed</a>
         <a class="landing-link" href="/shows">Shows</a>
+        <a class="landing-link" href="/about">About</a>
       </nav>
     </div>`;
   }
