@@ -1,9 +1,9 @@
 import { css, html, LitElement } from "lit";
-import { customElement, state } from "lit/decorators.js";
-import { getSPDB } from "../actions/database";
+import { customElement } from "lit/decorators.js";
 import { Task } from "@lit/task";
 import { FeedTableRow } from "../types/database";
 import "../components/sp-show-img";
+import { feedCache, getAllFeeds } from "../actions/feed";
 
 @customElement("sp-shows-page")
 export class SpShowsPage extends LitElement {
@@ -55,30 +55,12 @@ export class SpShowsPage extends LitElement {
     }
   `;
 
-  @state()
-  private _deletedShows: string[] = [];
-
   private _showsTask = new Task(this, {
     task: async () => {
-      const db = await getSPDB();
-      return db.getAll("feed");
+      return getAllFeeds();
     },
     args: () => [],
   });
-
-  private _deleteShow = async (show: FeedTableRow) => {
-    const db = await getSPDB();
-    const tx = db.transaction(["feed"], "readwrite");
-
-    // delete feed
-    const feedObjectStore = tx.objectStore("feed");
-    feedObjectStore.delete(show.link!);
-
-    // tell everyone that we're done
-    await tx.done;
-
-    this._deletedShows = [...this._deletedShows, show.link!];
-  };
 
   private _renderShows = (feeds: FeedTableRow[]) => {
     return html`
@@ -87,32 +69,28 @@ export class SpShowsPage extends LitElement {
         <a href="/shows/add">Add a show</a>
       </div>
       <ul>
-        ${feeds
-          // this feels nasty: might have to revisit (see TODO)
-          .filter((show) => !this._deletedShows.includes(show.link!))
-          .map((show) => {
-            // TODO: make this its own row so that tasks can be better contained
-            return html`<li>
-              <sp-show-img .src=${show.image?.url}></sp-show-img>
-              <div class="show-title-info-container">
-                <h2>${show.title}</h2>
-                <!-- where do I want to do put this -->
-                <!--<div class="actions-container">-->
-                <!--  <button @click=${() =>
-                  this._deleteShow(show)}>Delete</button>-->
-                <!--</div>-->
-              </div>
-              <a
-                class="show-link"
-                href=${`/shows/${encodeURIComponent(show.feedUrl!)}`}
-              ></a>
-            </li>`;
-          })}
+        ${feeds.map((show) => {
+          // TODO: make this its own row so that tasks can be better contained
+          return html`<li>
+            <sp-show-img .src=${show.image?.url}></sp-show-img>
+            <div class="show-title-info-container">
+              <h2>${show.title}</h2>
+            </div>
+            <a
+              class="show-link"
+              href=${`/shows/${encodeURIComponent(show.feedUrl!)}`}
+            ></a>
+          </li>`;
+        })}
       </ul>
     `;
   };
 
   render() {
+    if (feedCache !== null) {
+      return this._renderShows(feedCache);
+    }
+
     return this._showsTask.render({
       pending: () => html`<sp-loading-page></sp-loading-page>`,
       complete: this._renderShows,

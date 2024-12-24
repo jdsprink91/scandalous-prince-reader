@@ -1,3 +1,4 @@
+import { FeedTableRow } from "../types/database";
 import { Feed, FeedItem } from "../types/rss";
 import { getSPDB } from "./database";
 
@@ -31,4 +32,30 @@ export async function fetchFeed(link: string): Promise<Feed> {
   }
 
   return response.json();
+}
+
+export let feedCache: FeedTableRow[] | null = null;
+
+export async function getAllFeeds(): Promise<FeedTableRow[]> {
+  const db = await getSPDB();
+  const feeds = await db.getAll("feed");
+  feedCache = feeds;
+  return feeds;
+}
+
+export async function deleteFeed(link: string) {
+  const db = await getSPDB();
+  const tx = db.transaction(["feed"], "readwrite");
+
+  // delete feed
+  const feedObjectStore = tx.objectStore("feed");
+  feedObjectStore.delete(link);
+
+  // delete from cache
+  if (feedCache) {
+    feedCache = feedCache.filter((feed) => feed.link !== link);
+  }
+
+  // tell everyone that we're done
+  await tx.done;
 }

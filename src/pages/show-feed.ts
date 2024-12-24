@@ -6,7 +6,7 @@ import { FeedItemPlaybackRow } from "../types/database";
 import { getSPDB } from "../actions/database";
 import "../components/sp-feed-list";
 import "../components/sp-loading-page.ts";
-import { fetchFeed } from "../actions/feed.ts";
+import { deleteFeed, fetchFeed } from "../actions/feed.ts";
 import { FeedItemCard } from "../components/sp-feed-list-item.ts";
 import { ExtendedItem } from "../types/rss.ts";
 
@@ -60,15 +60,7 @@ export class SpShowFeedPage extends LitElement {
   });
 
   private _deleteShow = async (link: string) => {
-    const db = await getSPDB();
-    const tx = db.transaction(["feed"], "readwrite");
-
-    // delete feed
-    const feedObjectStore = tx.objectStore("feed");
-    feedObjectStore.delete(link);
-
-    // tell everyone that we're done
-    await tx.done;
+    await deleteFeed(link);
 
     window.location.href = "/shows";
   };
