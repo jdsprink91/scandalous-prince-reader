@@ -4,7 +4,6 @@ import { getSPDB } from "../actions/database";
 import { Task } from "@lit/task";
 import { FeedTableRow } from "../types/database";
 import "../components/sp-show-img";
-import { deleteFeedFromCache } from "../actions/feed";
 
 @customElement("sp-shows-page")
 export class SpShowsPage extends LitElement {
@@ -74,9 +73,6 @@ export class SpShowsPage extends LitElement {
     // delete feed
     const feedObjectStore = tx.objectStore("feed");
     feedObjectStore.delete(show.link!);
-
-    // remove feed items from cache
-    deleteFeedFromCache(show.link);
 
     // tell everyone that we're done
     await tx.done;

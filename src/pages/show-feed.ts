@@ -6,7 +6,7 @@ import { FeedItemPlaybackRow } from "../types/database";
 import { getSPDB } from "../actions/database";
 import "../components/sp-feed-list";
 import "../components/sp-loading-page.ts";
-import { deleteFeedFromCache, fetchFeed } from "../actions/feed.ts";
+import { fetchFeed } from "../actions/feed.ts";
 import { FeedItemCard } from "../components/sp-feed-list-item.ts";
 import { ExtendedItem } from "../types/rss.ts";
 
@@ -66,9 +66,6 @@ export class SpShowFeedPage extends LitElement {
     // delete feed
     const feedObjectStore = tx.objectStore("feed");
     feedObjectStore.delete(link);
-
-    // remove feed items from cache
-    deleteFeedFromCache(link);
 
     // tell everyone that we're done
     await tx.done;

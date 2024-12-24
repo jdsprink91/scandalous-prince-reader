@@ -3,7 +3,6 @@ import "urlpattern-polyfill";
 
 import { Context, Router } from "@thepassle/app-tools/router.js";
 
-import "./pages/feed";
 import "./pages/add";
 import "./pages/about";
 import "./pages/landing";
@@ -36,11 +35,6 @@ export const router = new Router({
       render: () => {
         return html`<sp-landing-page></sp-landing-page>`;
       },
-    },
-    {
-      path: resolveRouterPath("feed"),
-      title: "Feed",
-      render: getPage(() => html`<sp-feed-page></sp-feed-page>`),
     },
     {
       path: resolveRouterPath("shows/add"),
