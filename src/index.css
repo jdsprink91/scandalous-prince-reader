@@ -68,7 +68,7 @@ footer {
   width: 100%;
   padding-top: 1rem;
   padding-left: 2rem;
-  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  padding-bottom: calc(2rem + env(safe-area-inset-bottom));
   padding-right: 2rem;
   background: white;
 }
