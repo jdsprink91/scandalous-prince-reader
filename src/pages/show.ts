@@ -106,7 +106,7 @@ export class SpShow extends AudioIntegratedElement {
 
     return html`
       <h1>${feed.title}</h1>
-      <h2>${feed.title}</h2>
+      <h2>${feedItem.title}</h2>
       <date>${dayjs(feedItem.pubDate).format("MMM D, YYYY")}</date>
       <div class="playback">
         ${this._renderDuration(feedItem.itunes?.duration ?? "")}

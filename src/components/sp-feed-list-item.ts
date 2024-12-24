@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import duration from "dayjs/plugin/duration";
-import { css, html } from "lit";
+import { css, html, PropertyValues } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { getAudioPlayer, openAudioPlayer } from "../actions/audio";
 import { FeedItemPlaybackRow } from "../types/database";
@@ -171,6 +171,20 @@ export class SpFeedListItem extends AudioIntegratedElement {
 
     this.ended = this.feedItem.feedItemPlayback?.played ?? false;
     this.currentTime = this.feedItem.feedItemPlayback?.currentTime;
+  }
+
+  updated(_changedProperties: PropertyValues<this>) {
+    if (_changedProperties.has("feedItem")) {
+      const feedItem = _changedProperties.get("feedItem");
+      if (feedItem) {
+        if (this.ended !== feedItem.feedItemPlayback?.played) {
+          this.ended = feedItem.feedItemPlayback?.played ?? false;
+        }
+        if (this.currentTime !== feedItem.feedItemPlayback?.currentTime) {
+          this.currentTime = feedItem.feedItemPlayback?.currentTime;
+        }
+      }
+    }
   }
 
   disconnectedCallback() {

@@ -7,6 +7,12 @@ export interface FeedItemUgh extends Omit<FeedItem, "isoDate"> {
   isoDate?: Date;
 }
 
+export let feedCache: Feed[] | null = null;
+
+export function getFeedFromCache(feedUrl: string | undefined) {
+  return feedCache?.find((feed) => feedUrl && feed.feedUrl === feedUrl);
+}
+
 export async function addFeed(feed: Feed) {
   const db = await getSPDB();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -15,6 +21,15 @@ export async function addFeed(feed: Feed) {
   const tx = db.transaction(["feed"], "readwrite");
   const feedObjectStore = tx.objectStore("feed");
   await feedObjectStore.put(otherFeed);
+
+  // update the cache
+  if (feedCache === null) {
+    feedCache = [feed];
+  } else {
+    if (getFeedFromCache(feed.link) === undefined) {
+      feedCache.push(feed);
+    }
+  }
 
   return tx.done;
 }
@@ -31,15 +46,30 @@ export async function fetchFeed(link: string): Promise<Feed> {
     throw new Error("whoops");
   }
 
-  return response.json();
-}
+  const feed = await response.json();
 
-export let feedCache: FeedTableRow[] | null = null;
+  // append this to the feed cache if need be
+  if (feedCache === null) {
+    feedCache = [feed];
+  } else {
+    const feedCacheItem = feedCache.find(
+      (fc) => fc.link && fc.link === feed.link,
+    );
+
+    if (feedCacheItem !== undefined) {
+      feedCacheItem.items = feed.items;
+    } else {
+      feedCache.push(feed);
+    }
+  }
+
+  return feed;
+}
 
 export async function getAllFeeds(): Promise<FeedTableRow[]> {
   const db = await getSPDB();
   const feeds = await db.getAll("feed");
-  feedCache = feeds;
+  feedCache = feeds.map((feed) => ({ ...feed, items: [] }));
   return feeds;
 }
 
@@ -57,5 +87,5 @@ export async function deleteFeed(link: string) {
   }
 
   // tell everyone that we're done
-  await tx.done;
+  return tx.done;
 }
