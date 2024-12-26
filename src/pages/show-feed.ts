@@ -113,7 +113,7 @@ export class SpShowFeedPage extends LitElement {
 
   render() {
     const feed = getFeedFromCache(decodeURIComponent(this.link));
-    if (feed && feed.items.length > 0) {
+    if (feed) {
       return this._renderFeedList(feed);
     }
 
