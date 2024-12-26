@@ -38,14 +38,14 @@ export const router = new Router({
       },
     },
     {
-      path: resolveRouterPath("shows/add"),
-      title: "Add Show",
-      render: getPage(() => html`<sp-add-feed-page></sp-add-feed-page>`),
-    },
-    {
       path: resolveRouterPath("shows"),
       title: "Shows",
       render: getPage(() => html`<sp-shows-page></sp-shows-page>`),
+    },
+    {
+      path: resolveRouterPath("shows/add"),
+      title: "Add Show",
+      render: getPage(() => html`<sp-add-feed-page></sp-add-feed-page>`),
     },
     {
       path: resolveRouterPath("shows/:link"),

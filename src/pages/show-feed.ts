@@ -8,6 +8,7 @@ import "../components/sp-loading-page.ts";
 import { deleteFeed, fetchFeed, getFeedFromCache } from "../actions/feed.ts";
 import { FeedItemCard } from "../components/sp-feed-list-item.ts";
 import { Feed } from "../types/rss.ts";
+import { router } from "../router.ts";
 
 @customElement("sp-show-feed-page")
 export class SpShowFeedPage extends LitElement {
@@ -41,7 +42,9 @@ export class SpShowFeedPage extends LitElement {
 
   private _feedTask = new Task(this, {
     task: async () => {
-      return fetchFeed(decodeURIComponent(this.link));
+      const feed = await fetchFeed(decodeURIComponent(this.link));
+      await this._getFeedItemPlayback();
+      return feed;
     },
     args: () => [],
   });
@@ -49,7 +52,7 @@ export class SpShowFeedPage extends LitElement {
   private _deleteShow = async (link: string) => {
     await deleteFeed(link);
 
-    window.location.href = "/shows";
+    router.navigate("/shows");
   };
 
   private _renderFeedList = (feed: Feed) => {
@@ -102,12 +105,15 @@ export class SpShowFeedPage extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    this._getFeedItemPlayback();
+    const feed = getFeedFromCache(decodeURIComponent(this.link));
+    if (feed) {
+      this._getFeedItemPlayback();
+    }
   }
 
   render() {
     const feed = getFeedFromCache(decodeURIComponent(this.link));
-    if (feed) {
+    if (feed && feed.items.length > 0) {
       return this._renderFeedList(feed);
     }
 

@@ -7,31 +7,31 @@ export interface FeedItemUgh extends Omit<FeedItem, "isoDate"> {
   isoDate?: Date;
 }
 
-export let feedCache: Feed[] | null = null;
+////////////////////
+// indexed db cache
+////////////////////
+
+let indexedDbFeedCache: FeedTableRow[] | null = null;
+
+export function getIndexedDbFeedCache() {
+  return indexedDbFeedCache;
+}
+
+export async function getAllFeeds(): Promise<FeedTableRow[]> {
+  const db = await getSPDB();
+  const feed = await db.getAll("feed");
+  indexedDbFeedCache = feed;
+  return feed;
+}
+
+///////////////////
+// feed cache
+///////////////////
+
+let feedCache: Feed[] | null = null;
 
 export function getFeedFromCache(feedUrl: string | undefined) {
   return feedCache?.find((feed) => feedUrl && feed.feedUrl === feedUrl);
-}
-
-export async function addFeed(feed: Feed) {
-  const db = await getSPDB();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { items, ...otherFeed } = feed;
-
-  const tx = db.transaction(["feed"], "readwrite");
-  const feedObjectStore = tx.objectStore("feed");
-  await feedObjectStore.put(otherFeed);
-
-  // update the cache
-  if (feedCache === null) {
-    feedCache = [feed];
-  } else {
-    if (getFeedFromCache(feed.link) === undefined) {
-      feedCache.push(feed);
-    }
-  }
-
-  return tx.done;
 }
 
 export async function fetchFeed(link: string): Promise<Feed> {
@@ -57,7 +57,7 @@ export async function fetchFeed(link: string): Promise<Feed> {
     );
 
     if (feedCacheItem !== undefined) {
-      feedCacheItem.items = feed.items;
+      feedCacheItem.items = [...feed.items];
     } else {
       feedCache.push(feed);
     }
@@ -66,11 +66,34 @@ export async function fetchFeed(link: string): Promise<Feed> {
   return feed;
 }
 
-export async function getAllFeeds(): Promise<FeedTableRow[]> {
+////////
+// both
+////////
+
+export async function addFeed(feed: Feed) {
   const db = await getSPDB();
-  const feeds = await db.getAll("feed");
-  feedCache = feeds.map((feed) => ({ ...feed, items: [] }));
-  return feeds;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { items, ...otherFeed } = feed;
+
+  const tx = db.transaction(["feed"], "readwrite");
+  const feedObjectStore = tx.objectStore("feed");
+  await feedObjectStore.put(otherFeed);
+  if (indexedDbFeedCache === null) {
+    indexedDbFeedCache = [otherFeed];
+  } else {
+    indexedDbFeedCache.push(otherFeed);
+  }
+
+  // update the cache
+  if (feedCache === null) {
+    feedCache = [feed];
+  } else {
+    if (getFeedFromCache(feed.link) === undefined) {
+      feedCache.push(feed);
+    }
+  }
+
+  return tx.done;
 }
 
 export async function deleteFeed(link: string) {
@@ -80,6 +103,11 @@ export async function deleteFeed(link: string) {
   // delete feed
   const feedObjectStore = tx.objectStore("feed");
   feedObjectStore.delete(link);
+
+  // delete from indexed db cache
+  if (indexedDbFeedCache !== null) {
+    indexedDbFeedCache = indexedDbFeedCache.filter((fc) => fc.link !== link);
+  }
 
   // delete from cache
   if (feedCache) {
