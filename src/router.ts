@@ -14,6 +14,7 @@ import "./components/sp-mobile-footer";
 import "./components/sp-mobile-audio-player";
 import "./components/sp-feed-list-item";
 import "./components/sp-play-pause-button";
+import "./components/sp-duration";
 
 const baseURL: string = import.meta.env.BASE_URL;
 

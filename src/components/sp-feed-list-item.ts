@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import duration from "dayjs/plugin/duration";
-import { css, html, PropertyValues } from "lit";
+import { css, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { getAudioPlayer, openAudioPlayer } from "../actions/audio";
 import { FeedItemPlaybackRow } from "../types/database";
@@ -83,12 +83,8 @@ export class SpFeedListItem extends AudioIntegratedElement {
       margin-bottom: 0;
     }
 
-    time {
+    sp-duration {
       margin-left: 0.5rem;
-    }
-
-    .time-modifier {
-      margin-left: 0.25rem;
     }
 
     sp-play-pause-button {
@@ -168,23 +164,6 @@ export class SpFeedListItem extends AudioIntegratedElement {
         this.playing = true;
       }
     }
-
-    this.ended = this.feedItem.feedItemPlayback?.played ?? false;
-    this.currentTime = this.feedItem.feedItemPlayback?.currentTime;
-  }
-
-  updated(_changedProperties: PropertyValues<this>) {
-    if (_changedProperties.has("feedItem")) {
-      const feedItem = _changedProperties.get("feedItem");
-      if (feedItem) {
-        if (this.ended !== feedItem.feedItemPlayback?.played) {
-          this.ended = feedItem.feedItemPlayback?.played ?? false;
-        }
-        if (this.currentTime !== feedItem.feedItemPlayback?.currentTime) {
-          this.currentTime = feedItem.feedItemPlayback?.currentTime;
-        }
-      }
-    }
   }
 
   disconnectedCallback() {
@@ -194,6 +173,22 @@ export class SpFeedListItem extends AudioIntegratedElement {
       this._disconnectFromAudioPlayer(this._mutationObserver);
     }
   }
+
+  private _getEnded = () => {
+    if (this.ended !== null) {
+      return this.ended;
+    }
+
+    return this.feedItem.feedItemPlayback?.played ?? false;
+  };
+
+  private _getCurrentTime = () => {
+    if (this.currentTime !== null) {
+      return this.currentTime;
+    }
+
+    return this.feedItem.feedItemPlayback?.currentTime ?? null;
+  };
 
   render() {
     const linkToShow = `shows/${encodeURIComponent(this.feedItem.feedUrl)}/${encodeURIComponent(this.feedItem.guid)}`;
@@ -210,7 +205,12 @@ export class SpFeedListItem extends AudioIntegratedElement {
         <p class="content-snippet">${this.feedItem.contentSnippet}</p>
         <div class="date-and-action-container">
           <date>${dayjs(this.feedItem.dateAdded).format("MMM D, YYYY")}</date>
-          ${this._renderDuration(this.feedItem.duration)}
+          <sp-duration
+            .duration=${this.feedItem.duration}
+            .ended=${this._getEnded()}
+            .currentTime=${this._getCurrentTime()}
+          >
+          </sp-duration>
           <sp-play-pause-button
             .playing=${this.playing}
             @click=${this._handlePlayClick}

@@ -1,47 +1,16 @@
-import { html, LitElement } from "lit";
+import { LitElement } from "lit";
 import { state } from "lit/decorators.js";
 import { getAudioPlayer } from "../actions/audio";
-import dayjs from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-import duration from "dayjs/plugin/duration";
-
-dayjs.extend(customParseFormat);
-dayjs.extend(duration);
-
-function niceTime(duration: duration.Duration) {
-  const hours = duration.get("h");
-  const minutes = duration.get("m");
-  const hourString = hours
-    ? `${duration.get("h")} hour${hours > 1 ? "s" : ""}`
-    : "";
-  const minuteString = minutes
-    ? `${duration.get("m")} minute${minutes > 1 ? "s" : ""} `
-    : "";
-
-  if (hourString && !minuteString) {
-    return hourString;
-  }
-
-  if (hourString && minuteString) {
-    return `${hourString}, ${minuteString}`;
-  }
-
-  if (minuteString) {
-    return minuteString;
-  }
-
-  return null;
-}
 
 export class AudioIntegratedElement extends LitElement {
   @state()
   playing: boolean = false;
 
   @state()
-  currentTime: number | undefined = undefined;
+  currentTime: number | null = null;
 
   @state()
-  ended: boolean = false;
+  ended: boolean | null = false;
 
   protected _handlePlay = () => {
     this.playing = true;
@@ -76,49 +45,5 @@ export class AudioIntegratedElement extends LitElement {
     audioPlayer.removeEventListener("pause", this._handlePause);
     audioPlayer.removeEventListener("timeupdate", this._handleTimeUpdate);
     audioPlayer.removeEventListener("ended", this._handleEnded);
-  };
-
-  protected _renderDuration = (duration: string | undefined) => {
-    if (duration === undefined) {
-      return html`No duration info`;
-    }
-
-    const convertedTime = dayjs(duration, "HH:mm:ss");
-
-    let durationObj = dayjs.duration({
-      hours: convertedTime.hour(),
-      minutes: convertedTime.minute(),
-      seconds: convertedTime.second(),
-    });
-
-    // if you have time in seconds, then return that duration
-    if (!convertedTime.isValid()) {
-      const durationAsNumber = Number(duration);
-      durationObj = dayjs.duration(
-        Number.isNaN(durationAsNumber) ? 0 : durationAsNumber,
-        "second",
-      );
-    }
-
-    if (this.ended) {
-      return html`
-        <time .datetime=${duration}>${niceTime(durationObj)}</time>
-        <p class="time-modifier">Played!</p>
-      `;
-    }
-
-    if (this.currentTime) {
-      const timePlayed = Math.floor(this.currentTime);
-      const timeLeft = durationObj.subtract({ seconds: timePlayed });
-
-      return html`
-        <time .datetime=${timeLeft.format("HH:mm:ss")}
-          >${niceTime(timeLeft)}</time
-        >
-        <p class="time-modifier">remaining</p>
-      `;
-    }
-
-    return html`<time .datetime=${duration}>${niceTime(durationObj)}</time>`;
   };
 }

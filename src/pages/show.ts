@@ -1,5 +1,5 @@
 import { css, html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { fetchFeed } from "../actions/feed";
 import { Task } from "@lit/task";
 import dayjs from "dayjs";
@@ -9,6 +9,7 @@ import { AudioIntegratedElement } from "../components/audio-integrated-element";
 import { getAudioPlayer, openAudioPlayer } from "../actions/audio";
 import { getSPDB } from "../actions/database";
 import { Feed, FeedItem } from "../types/rss";
+import { FeedItemPlaybackRow } from "../types/database";
 
 @customElement("sp-show")
 export class SpShow extends AudioIntegratedElement {
@@ -22,10 +23,6 @@ export class SpShow extends AudioIntegratedElement {
       margin-left: auto;
       width: 30px;
     }
-
-    .time-modifier {
-      margin-left: 0.25rem;
-    }
   `;
 
   @property({ type: String })
@@ -33,6 +30,9 @@ export class SpShow extends AudioIntegratedElement {
 
   @property({ type: String })
   guid: string;
+
+  @state()
+  feedItemPlayback: FeedItemPlaybackRow | null = null;
 
   private _showTask = new Task(this, {
     task: async () => {
@@ -60,8 +60,9 @@ export class SpShow extends AudioIntegratedElement {
       const db = await getSPDB();
       const feedItemPlayback = await db.get("feed-item-playback", url);
 
-      this.ended = feedItemPlayback?.played ?? false;
-      this.currentTime = feedItemPlayback?.currentTime;
+      if (feedItemPlayback) {
+        this.feedItemPlayback = feedItemPlayback;
+      }
 
       return feed;
     },
@@ -91,6 +92,22 @@ export class SpShow extends AudioIntegratedElement {
     }
   };
 
+  private _getEnded = () => {
+    if (this.ended !== null) {
+      return this.ended;
+    }
+
+    return this.feedItemPlayback?.played ?? false;
+  };
+
+  private _getCurrentTime = () => {
+    if (this.currentTime !== null) {
+      return this.currentTime;
+    }
+
+    return this.feedItemPlayback?.currentTime ?? null;
+  };
+
   private _renderShow = (feed: Feed | undefined) => {
     if (feed === undefined) {
       return null;
@@ -109,7 +126,11 @@ export class SpShow extends AudioIntegratedElement {
       <h2>${feedItem.title}</h2>
       <date>${dayjs(feedItem.pubDate).format("MMM D, YYYY")}</date>
       <div class="playback">
-        ${this._renderDuration(feedItem.itunes?.duration ?? "")}
+        <sp-duration
+          .duration=${feedItem.itunes?.duration ?? null}
+          .ended=${this._getEnded()}
+          .currentTime=${this._getCurrentTime()}
+        ></sp-duration>
         <sp-play-pause-button
           .playing=${this.playing}
           @click=${this._handlePlayClick(feed, feedItem)}
