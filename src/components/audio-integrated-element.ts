@@ -10,7 +10,7 @@ export class AudioIntegratedElement extends LitElement {
   currentTime: number | null = null;
 
   @state()
-  ended: boolean | null = false;
+  ended: boolean | null = null;
 
   protected _handlePlay = () => {
     this.playing = true;

@@ -80,7 +80,7 @@ export class SpDuration extends LitElement {
     if (this.ended) {
       return html`
         <time .datetime=${this.duration}>${niceTime(durationObj)}</time>
-        <p class="time-modifier">Played!</p>
+        <p class="time-modifier">played!</p>
       `;
     }
 
