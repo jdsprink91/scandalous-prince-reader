@@ -1,6 +1,6 @@
 import RssParser from "rss-parser";
 
-interface ExtendedItem {
+export interface ExtendedItem {
   itunes?: {
     image?: string;
     owner?: {

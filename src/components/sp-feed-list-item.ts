@@ -16,6 +16,7 @@ export interface FeedItemCard {
   showName: string;
   duration: string;
   guid: string;
+  feedUrl: string;
   feedItemPlayback?: FeedItemPlaybackRow;
   contentSnippet?: string;
   dateAdded?: Date;
@@ -82,12 +83,8 @@ export class SpFeedListItem extends AudioIntegratedElement {
       margin-bottom: 0;
     }
 
-    time {
+    sp-duration {
       margin-left: 0.5rem;
-    }
-
-    .time-modifier {
-      margin-left: 0.25rem;
     }
 
     sp-play-pause-button {
@@ -167,9 +164,6 @@ export class SpFeedListItem extends AudioIntegratedElement {
         this.playing = true;
       }
     }
-
-    this.ended = this.feedItem.feedItemPlayback?.played ?? false;
-    this.currentTime = this.feedItem.feedItemPlayback?.currentTime;
   }
 
   disconnectedCallback() {
@@ -180,8 +174,24 @@ export class SpFeedListItem extends AudioIntegratedElement {
     }
   }
 
+  private _getEnded = () => {
+    if (this.ended !== null) {
+      return this.ended;
+    }
+
+    return this.feedItem.feedItemPlayback?.played ?? false;
+  };
+
+  private _getCurrentTime = () => {
+    if (this.currentTime !== null) {
+      return this.currentTime;
+    }
+
+    return this.feedItem.feedItemPlayback?.currentTime ?? null;
+  };
+
   render() {
-    const linkToShow = `show/${encodeURIComponent(this.feedItem.guid)}`;
+    const linkToShow = `shows/${encodeURIComponent(this.feedItem.feedUrl)}/${encodeURIComponent(this.feedItem.guid)}`;
     return html`
       <div>
         <a .href=${linkToShow}></a>
@@ -195,7 +205,12 @@ export class SpFeedListItem extends AudioIntegratedElement {
         <p class="content-snippet">${this.feedItem.contentSnippet}</p>
         <div class="date-and-action-container">
           <date>${dayjs(this.feedItem.dateAdded).format("MMM D, YYYY")}</date>
-          ${this._renderDuration(this.feedItem.duration)}
+          <sp-duration
+            .duration=${this.feedItem.duration}
+            .ended=${this._getEnded()}
+            .currentTime=${this._getCurrentTime()}
+          >
+          </sp-duration>
           <sp-play-pause-button
             .playing=${this.playing}
             @click=${this._handlePlayClick}

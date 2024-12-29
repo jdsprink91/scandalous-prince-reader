@@ -67,8 +67,8 @@ something.
 
 ## V0.0.7 checklist
 
-- [ ] change ui to be show driven. Only show feed for show!
-- [ ] figure out how to load shows
+- [x] change ui to be show driven. Only show feed for show!
+- [x] figure out how to load shows
 
 ## V0.0.8 checklist
 

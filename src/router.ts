@@ -3,17 +3,18 @@ import "urlpattern-polyfill";
 
 import { Context, Router } from "@thepassle/app-tools/router.js";
 
-import "./pages/feed";
 import "./pages/add";
 import "./pages/about";
 import "./pages/landing";
 import "./pages/shows";
+import "./pages/show-feed";
 import "./pages/show";
 import "./components/sp-header";
 import "./components/sp-mobile-footer";
 import "./components/sp-mobile-audio-player";
 import "./components/sp-feed-list-item";
 import "./components/sp-play-pause-button";
+import "./components/sp-duration";
 
 const baseURL: string = import.meta.env.BASE_URL;
 
@@ -37,9 +38,9 @@ export const router = new Router({
       },
     },
     {
-      path: resolveRouterPath("feed"),
-      title: "Feed",
-      render: getPage(() => html`<sp-feed-page></sp-feed-page>`),
+      path: resolveRouterPath("shows"),
+      title: "Shows",
+      render: getPage(() => html`<sp-shows-page></sp-shows-page>`),
     },
     {
       path: resolveRouterPath("shows/add"),
@@ -47,21 +48,25 @@ export const router = new Router({
       render: getPage(() => html`<sp-add-feed-page></sp-add-feed-page>`),
     },
     {
-      path: resolveRouterPath("shows"),
+      path: resolveRouterPath("shows/:link"),
       title: "Shows",
-      render: getPage(() => html`<sp-shows-page></sp-shows-page>`),
+      render: getPage(
+        ({ params }) =>
+          html`<sp-show-feed-page .link=${params.link}></sp-show-feed-page>`,
+      ),
+    },
+    {
+      path: resolveRouterPath("shows/:link/:guid"),
+      title: () => "Show",
+      render: getPage(
+        ({ params }) =>
+          html`<sp-show .link=${params.link} .guid=${params.guid}></sp-show>`,
+      ),
     },
     {
       path: resolveRouterPath("about"),
       title: "About",
       render: getPage(() => html`<sp-about-page></sp-about-page>`),
-    },
-    {
-      path: resolveRouterPath("show/:guid"),
-      title: ({ params }) => params?.title || "Show",
-      render: getPage(
-        ({ params }) => html`<sp-show .guid=${params.guid}></sp-show>`,
-      ),
     },
   ],
 });

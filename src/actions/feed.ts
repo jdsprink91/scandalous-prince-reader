@@ -1,3 +1,4 @@
+import { FeedTableRow } from "../types/database";
 import { Feed, FeedItem } from "../types/rss";
 import { getSPDB } from "./database";
 
@@ -6,27 +7,68 @@ export interface FeedItemUgh extends Omit<FeedItem, "isoDate"> {
   isoDate?: Date;
 }
 
-let cachedFeedItems: FeedItemUgh[] | null = null;
+////////////////////
+// indexed db cache
+////////////////////
 
-function transformFeedIntoFeedItemUgh(feed: Feed): FeedItemUgh[] {
-  const { items, ...restFeed } = feed;
-  return items.map((item) => {
-    const { isoDate, ...restItem } = item;
-    return {
-      feed: restFeed,
-      isoDate: isoDate ? new Date(isoDate) : undefined,
-      ...restItem,
-    };
-  });
+let indexedDbFeedCache: FeedTableRow[] | null = null;
+
+export function getIndexedDbFeedCache() {
+  return indexedDbFeedCache;
 }
 
-function sortFeedItemUghs(left: FeedItemUgh, right: FeedItemUgh) {
-  if (left.isoDate && right.isoDate) {
-    return left.isoDate < right.isoDate ? 1 : -1;
+export async function getAllFeeds(): Promise<FeedTableRow[]> {
+  const db = await getSPDB();
+  const feed = await db.getAll("feed");
+  indexedDbFeedCache = feed;
+  return feed;
+}
+
+///////////////////
+// feed cache
+///////////////////
+
+let feedCache: Feed[] | null = null;
+
+export function getFeedFromCache(feedUrl: string | undefined) {
+  return feedCache?.find((feed) => feedUrl && feed.feedUrl === feedUrl);
+}
+
+export async function fetchFeed(link: string): Promise<Feed> {
+  const response = await fetch("/api/read-rss-feed", {
+    method: "post",
+    body: JSON.stringify({
+      q: link,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("whoops");
   }
 
-  return 0;
+  const feed = await response.json();
+
+  // append this to the feed cache if need be
+  if (feedCache === null) {
+    feedCache = [feed];
+  } else {
+    const feedCacheItem = feedCache.find(
+      (fc) => fc.link && fc.link === feed.link,
+    );
+
+    if (feedCacheItem !== undefined) {
+      feedCacheItem.items = [...feed.items];
+    } else {
+      feedCache.push(feed);
+    }
+  }
+
+  return feed;
 }
+
+////////
+// both
+////////
 
 export async function addFeed(feed: Feed) {
   const db = await getSPDB();
@@ -36,52 +78,42 @@ export async function addFeed(feed: Feed) {
   const tx = db.transaction(["feed"], "readwrite");
   const feedObjectStore = tx.objectStore("feed");
   await feedObjectStore.put(otherFeed);
+  if (indexedDbFeedCache === null) {
+    indexedDbFeedCache = [otherFeed];
+  } else {
+    indexedDbFeedCache.push(otherFeed);
+  }
 
-  const feedItemUghs = transformFeedIntoFeedItemUgh(feed);
-  cachedFeedItems = (cachedFeedItems || [])
-    .concat(feedItemUghs)
-    .sort(sortFeedItemUghs);
+  // update the cache
+  if (feedCache === null) {
+    feedCache = [feed];
+  } else {
+    if (getFeedFromCache(feed.link) === undefined) {
+      feedCache.push(feed);
+    }
+  }
 
   return tx.done;
 }
 
-export async function fetchFeedItems(): Promise<FeedItemUgh[]> {
-  if (cachedFeedItems) {
-    return cachedFeedItems;
-  }
-
+export async function deleteFeed(link: string) {
   const db = await getSPDB();
-  const feeds = await db.getAll("feed");
-  const feedUrls = feeds
-    .map((feed) => encodeURIComponent(feed.feedUrl!))
-    .join(",");
+  const tx = db.transaction(["feed"], "readwrite");
 
-  const searchParams = new URLSearchParams(`feeds=${feedUrls}`);
-  const response = await fetch(`/api/fetch-feed?${searchParams}`, {
-    method: "get",
-  });
+  // delete feed
+  const feedObjectStore = tx.objectStore("feed");
+  feedObjectStore.delete(link);
 
-  const feedResponse: Feed[] = await response.json();
-  const feedItems = feedResponse
-    .flatMap(transformFeedIntoFeedItemUgh)
-    .sort(sortFeedItemUghs);
-
-  cachedFeedItems = feedItems;
-  return cachedFeedItems;
-}
-
-export function bustFeedItemCache() {
-  cachedFeedItems = null;
-}
-
-export function deleteFeedFromCache(feedLink: string | undefined) {
-  if (!cachedFeedItems) {
-    return 0;
+  // delete from indexed db cache
+  if (indexedDbFeedCache !== null) {
+    indexedDbFeedCache = indexedDbFeedCache.filter((fc) => fc.link !== link);
   }
 
-  cachedFeedItems = cachedFeedItems.filter((item) => {
-    return item.feed.link !== feedLink;
-  });
+  // delete from cache
+  if (feedCache) {
+    feedCache = feedCache.filter((feed) => feed.link !== link);
+  }
 
-  return true;
+  // tell everyone that we're done
+  return tx.done;
 }

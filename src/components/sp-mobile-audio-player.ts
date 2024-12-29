@@ -17,7 +17,7 @@ export class SpMobileAudioPlayer extends LitElement {
     :host {
       position: fixed;
       display: block;
-      bottom: 60px;
+      bottom: 76px;
       z-index: 2;
       width: 100%;
       max-width: 50rem;

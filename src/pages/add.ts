@@ -4,6 +4,7 @@ import sleepyCat from "../assets/noun-sleepy-cat-6113435.svg";
 import "../components/sp-loading-spinner";
 import { Task } from "@lit/task";
 import "../components/sp-add-feed-item";
+import { fetchFeed } from "../actions/feed";
 
 @customElement("sp-add-feed-page")
 export class SpAddPage extends LitElement {
@@ -28,16 +29,7 @@ export class SpAddPage extends LitElement {
   private _parseFeed = new Task(this, {
     task: async ([feedUrl]: [string]) => {
       if (feedUrl) {
-        const rssFeedResponse = await fetch("/api/read-rss-feed", {
-          method: "post",
-          body: JSON.stringify({
-            q: feedUrl,
-          }),
-        });
-        if (!rssFeedResponse.ok) {
-          throw new Error("whoops");
-        }
-        return rssFeedResponse.json();
+        return fetchFeed(feedUrl);
       }
 
       return null;
