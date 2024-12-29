@@ -1,6 +1,6 @@
 import { css, html, LitElement } from "lit";
 import { Task } from "@lit/task";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, property } from "lit/decorators.js";
 import { FeedItemPlaybackRow } from "../types/database";
 import { getSPDB } from "../actions/database";
 import "../components/sp-feed-list";
@@ -15,9 +15,6 @@ export class SpShowFeedPage extends LitElement {
   @property({ type: String })
   link: string;
 
-  @state()
-  feedItemPlaybackByKey: Record<string, FeedItemPlaybackRow> | null = null;
-
   static styles = css`
     .header-and-reload-container {
       display: flex;
@@ -29,7 +26,7 @@ export class SpShowFeedPage extends LitElement {
     const db = await getSPDB();
     const feedItemPlayback = await db.getAll("feed-item-playback");
 
-    this.feedItemPlaybackByKey = feedItemPlayback.reduce(
+    return feedItemPlayback.reduce(
       (acc, feedItemPlayback) => {
         return {
           [feedItemPlayback.url]: feedItemPlayback,
@@ -42,9 +39,16 @@ export class SpShowFeedPage extends LitElement {
 
   private _feedTask = new Task(this, {
     task: async () => {
-      const feed = await fetchFeed(decodeURIComponent(this.link));
-      await this._getFeedItemPlayback();
-      return feed;
+      const decodedLink = decodeURIComponent(this.link);
+      let feed = getFeedFromCache(decodedLink);
+      if (feed === undefined) {
+        feed = await fetchFeed(decodedLink);
+      }
+      const feedItemPlayback = await this._getFeedItemPlayback();
+      return {
+        feed,
+        feedItemPlayback,
+      };
     },
     args: () => [],
   });
@@ -55,7 +59,13 @@ export class SpShowFeedPage extends LitElement {
     router.navigate("/shows");
   };
 
-  private _renderFeedList = (feed: Feed) => {
+  private _renderFeedList = ({
+    feed,
+    feedItemPlayback,
+  }: {
+    feed: Feed;
+    feedItemPlayback: Record<string, FeedItemPlaybackRow>;
+  }) => {
     const { title, link, feedUrl } = feed;
     const feedItemCards: FeedItemCard[] = feed.items
       .map((feedItem) => {
@@ -85,8 +95,8 @@ export class SpShowFeedPage extends LitElement {
           audioSrc: feedItem.enclosure.url,
           duration: feedItem.itunes.duration,
           imgSrc,
-          feedItemPlayback: this.feedItemPlaybackByKey
-            ? this.feedItemPlaybackByKey[feedItem.enclosure!.url]
+          feedItemPlayback: feedItemPlayback
+            ? feedItemPlayback[feedItem.enclosure!.url]
             : undefined,
           guid: feedItem.guid,
           feedUrl,
@@ -103,20 +113,7 @@ export class SpShowFeedPage extends LitElement {
     `;
   };
 
-  connectedCallback() {
-    super.connectedCallback();
-    const feed = getFeedFromCache(decodeURIComponent(this.link));
-    if (feed) {
-      this._getFeedItemPlayback();
-    }
-  }
-
   render() {
-    const feed = getFeedFromCache(decodeURIComponent(this.link));
-    if (feed) {
-      return this._renderFeedList(feed);
-    }
-
     return this._feedTask.render({
       pending: () => html`<sp-loading-page></sp-loading-page>`,
       complete: this._renderFeedList,

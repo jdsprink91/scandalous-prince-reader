@@ -1,6 +1,6 @@
 import { css, html } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
-import { fetchFeed } from "../actions/feed";
+import { customElement, property } from "lit/decorators.js";
+import { fetchFeed, getFeedFromCache } from "../actions/feed";
 import { Task } from "@lit/task";
 import dayjs from "dayjs";
 import DOMPurify from "dompurify";
@@ -31,23 +31,29 @@ export class SpShow extends AudioIntegratedElement {
   @property({ type: String })
   guid: string;
 
-  @state()
-  feedItemPlayback: FeedItemPlaybackRow | null = null;
-
   private _showTask = new Task(this, {
     task: async () => {
-      const feed = await fetchFeed(decodeURIComponent(this.link));
-      const theThing = feed.items.find(
+      const decodedLink = decodeURIComponent(this.link);
+      let feed = getFeedFromCache(decodedLink);
+      if (feed === undefined) {
+        feed = await fetchFeed(decodedLink);
+      }
+      const feedItem = feed.items.find(
         ({ guid }) => guid === decodeURIComponent(this.guid),
       );
 
-      if (theThing === undefined) {
-        return undefined;
+      if (feedItem === undefined) {
+        return null;
       }
-      const url = theThing.enclosure?.url;
+
+      const url = feedItem.enclosure?.url;
 
       if (url === undefined) {
-        return feed;
+        return {
+          feed,
+          feedItem,
+          feedItemPlayback: null,
+        };
       }
 
       const audioPlayer = getAudioPlayer();
@@ -60,13 +66,13 @@ export class SpShow extends AudioIntegratedElement {
       const db = await getSPDB();
       const feedItemPlayback = await db.get("feed-item-playback", url);
 
-      if (feedItemPlayback) {
-        this.feedItemPlayback = feedItemPlayback;
-      }
-
-      return feed;
+      return {
+        feed,
+        feedItem,
+        feedItemPlayback: feedItemPlayback ?? null,
+      };
     },
-    args: () => [this.guid],
+    args: () => [this.link, this.guid],
   });
 
   private _handlePlayClick = (feed: Feed, feedItem: FeedItem) => async () => {
@@ -92,34 +98,34 @@ export class SpShow extends AudioIntegratedElement {
     }
   };
 
-  private _getEnded = () => {
+  private _getEnded = (feedItemPlayback: FeedItemPlaybackRow | null) => {
     if (this.ended !== null) {
       return this.ended;
     }
 
-    return this.feedItemPlayback?.played ?? false;
+    return feedItemPlayback?.played ?? false;
   };
 
-  private _getCurrentTime = () => {
+  private _getCurrentTime = (feedItemPlayback: FeedItemPlaybackRow | null) => {
     if (this.currentTime !== null) {
       return this.currentTime;
     }
 
-    return this.feedItemPlayback?.currentTime ?? null;
+    return feedItemPlayback?.currentTime ?? null;
   };
 
-  private _renderShow = (feed: Feed | undefined) => {
-    if (feed === undefined) {
+  private _renderShow = (
+    args: null | {
+      feed: Feed;
+      feedItem: FeedItem;
+      feedItemPlayback: FeedItemPlaybackRow | null;
+    },
+  ) => {
+    if (args === null) {
       return null;
     }
 
-    const feedItem = feed.items.find(
-      ({ guid }) => guid === decodeURIComponent(this.guid),
-    );
-
-    if (!feedItem) {
-      return null;
-    }
+    const { feed, feedItem, feedItemPlayback } = args;
 
     return html`
       <h1>${feed.title}</h1>
@@ -128,8 +134,8 @@ export class SpShow extends AudioIntegratedElement {
       <div class="playback">
         <sp-duration
           .duration=${feedItem.itunes?.duration ?? null}
-          .ended=${this._getEnded()}
-          .currentTime=${this._getCurrentTime()}
+          .ended=${this._getEnded(feedItemPlayback)}
+          .currentTime=${this._getCurrentTime(feedItemPlayback)}
         ></sp-duration>
         <sp-play-pause-button
           .playing=${this.playing}

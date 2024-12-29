@@ -57,6 +57,10 @@ export class SpShowsPage extends LitElement {
 
   private _showsTask = new Task(this, {
     task: async () => {
+      const cache = getIndexedDbFeedCache();
+      if (cache !== null) {
+        return cache;
+      }
       return getAllFeeds();
     },
     args: () => [],
@@ -87,11 +91,6 @@ export class SpShowsPage extends LitElement {
   };
 
   render() {
-    const cache = getIndexedDbFeedCache();
-    if (cache !== null) {
-      return this._renderShows(cache);
-    }
-
     return this._showsTask.render({
       pending: () => html`<sp-loading-page></sp-loading-page>`,
       complete: this._renderShows,

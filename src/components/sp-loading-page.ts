@@ -1,5 +1,5 @@
 import { css, html, LitElement } from "lit";
-import { customElement } from "lit/decorators.js";
+import { customElement, state } from "lit/decorators.js";
 import "./sp-loading-spinner";
 
 @customElement("sp-loading-page")
@@ -16,7 +16,33 @@ export class SpLoadingPage extends LitElement {
     }
   `;
 
+  @state()
+  _showLoadingSpinner = false;
+
+  @state()
+  _timeout: number | null = null;
+
+  private _setShowLoadingSpinner = () => {
+    this._showLoadingSpinner = true;
+  };
+
+  connectedCallback() {
+    super.connectedCallback();
+    this._timeout = setTimeout(this._setShowLoadingSpinner, 200);
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    if (this._timeout) {
+      clearTimeout(this._timeout);
+    }
+  }
+
   render() {
-    return html`<div><sp-loading-spinner></sp-loading-spinner></div>`;
+    if (this._showLoadingSpinner) {
+      return html`<div><sp-loading-spinner></sp-loading-spinner></div>`;
+    }
+
+    return null;
   }
 }
