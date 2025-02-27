@@ -34,21 +34,7 @@ export function getFeedFromCache(feedUrl: string | undefined) {
   return feedCache?.find((feed) => feedUrl && feed.feedUrl === feedUrl);
 }
 
-export async function fetchFeed(link: string): Promise<Feed> {
-  const response = await fetch("/api/read-rss-feed", {
-    method: "post",
-    body: JSON.stringify({
-      q: link,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error("whoops");
-  }
-
-  const feed = await response.json();
-
-  // append this to the feed cache if need be
+function addFeedToCache(feed: Feed) {
   if (feedCache === null) {
     feedCache = [feed];
   } else {
@@ -62,8 +48,60 @@ export async function fetchFeed(link: string): Promise<Feed> {
       feedCache.push(feed);
     }
   }
+}
+
+export async function fetchFeed(link: string): Promise<Feed> {
+  const response = await fetch("/api/read-rss-feed", {
+    method: "post",
+    body: JSON.stringify({
+      q: link,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error("whoops");
+  }
+
+  const feed = (await response.json()) as Feed;
+
+  addFeedToCache(feed);
 
   return feed;
+}
+
+// so what do we want here?
+// Basically, I want to make sure that we return the SAME promise object
+
+export async function fetchAllFeeds(): Promise<Feed[]> {
+  const db = await getSPDB();
+  const feeds = await db.getAll("feed");
+
+  // lil optimization
+  if (feeds.length === 0) {
+    return [];
+  }
+
+  const feedsSearchParam = feeds
+    .filter((feed) => feed.feedUrl !== undefined)
+    .map((feed) => feed.feedUrl)
+    .join(",");
+
+  const urlSearchParams = new URLSearchParams({
+    feeds: feedsSearchParam,
+  });
+
+  const response = await fetch(`/api/fetch-feed?${urlSearchParams}`);
+
+  if (!response.ok) {
+    throw new Error("oops");
+  }
+
+  const data = (await response.json()) as Feed[];
+  for (const feed of data) {
+    addFeedToCache(feed);
+  }
+
+  return data;
 }
 
 ////////

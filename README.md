@@ -72,10 +72,22 @@ something.
 
 ## V0.0.8 checklist
 
+The bug fix version
+
+- [ ] overflow on links (peep demolisten episode 252)
+- [ ] Button still gets squished on lil player (see KUT news episode with long
+      title)
+- [ ] Can pause, but not play from main phone screen (unsure if I can do
+      anything about this)
+- [ ] need a way to refresh the feed (refresh button)
+- [ ] Recently played list. This will require some fun re-architecting. 1. Pull all feeds silently when the app is loading up 2. hook into that for everything
+
+## V0.0.9 checklist
+
 - [ ] add full page audio page
 - [ ] Add audio scrubber / playback speed
 
-## V0.0.9 checklist
+## V0.0.10 checklist
 
 Tons of style updates
 
