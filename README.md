@@ -81,6 +81,7 @@ The bug fix version
       anything about this)
 - [ ] need a way to refresh the feed (refresh button)
 - [ ] Recently played list. This will require some fun re-architecting. 1. Pull all feeds silently when the app is loading up 2. hook into that for everything
+- [ ] Why won't marketplace work? Snag their rss feed and see what's breaking.
 
 ## V0.0.9 checklist
 
