@@ -64,6 +64,11 @@ export async function fetchFeed(link: string): Promise<Feed> {
 
   const feed = (await response.json()) as Feed;
 
+  // I guess some podcasts don't have this
+  if (!("feedUrl" in feed)) {
+    feed.feedUrl = link;
+  }
+
   addFeedToCache(feed);
 
   return feed;
