@@ -82,13 +82,13 @@ The bug fix version
 - [ ] need a way to refresh the feed (refresh button)
 - [x] Why won't marketplace work? Snag their rss feed and see what's breaking.
 - [ ] demolisten photo will not update
-- [ ] negative playback on show item cards
+- [ ] negative playback on show item cards (they don't have duration)
 
 ## V0.0.9 checklist
 
+- [ ] Recently played list. This will require some fun re-architecting. 1. Pull all feeds silently when the app is loading up 2. hook into that for everything
 - [ ] add full page audio page
 - [ ] Add audio scrubber / playback speed
-- [ ] Recently played list. This will require some fun re-architecting. 1. Pull all feeds silently when the app is loading up 2. hook into that for everything
 
 ## V0.0.10 checklist
 
