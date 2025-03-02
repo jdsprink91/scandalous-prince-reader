@@ -29,14 +29,6 @@ export class SpShowFeedPage extends LitElement {
     .action-container {
       display: flex;
     }
-
-    .action-container > button:first-child {
-      margin-inline-start: auto;
-    }
-
-    .action-container > button:last-child {
-      margin-inline-start: 0.5rem;
-    }
   `;
 
   private _getFeedItemPlayback = async () => {
@@ -131,10 +123,8 @@ export class SpShowFeedPage extends LitElement {
       <div class="header-container">
         <h1>${title}</h1>
       </div>
-      <div class="action-container">
-        <button @click=${this._refreshShow}>Refresh</button>
-        <button @click=${() => this._deleteShow(link!)}>Delete</button>
-      </div>
+      <button @click=${this._refreshShow}>Refresh</button>
+      <button @click=${() => this._deleteShow(link!)}>Delete</button>
       <sp-feed-list .feedItems=${feedItemCards}></sp-feed-list>
     `;
   };

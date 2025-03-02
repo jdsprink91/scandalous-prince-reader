@@ -59,6 +59,27 @@ export async function addOrUpdateFeed(feed: Feed) {
   return tx.done;
 }
 
+async function addOrUpdateFeedList(feedList: Feed[]) {
+  const db = await getSPDB();
+
+  const tx = db.transaction(["feed"], "readwrite");
+  const feedObjectStore = tx.objectStore("feed");
+  await Promise.all(
+    feedList.map((feed) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { items, ...otherFeed } = feed;
+      return feedObjectStore.put(otherFeed);
+    }),
+  );
+
+  // update the cache
+  for (const feed of feedList) {
+    addFeedToCache(feed);
+  }
+
+  return tx.done;
+}
+
 export async function deleteFeed(link: string) {
   const db = await getSPDB();
   const tx = db.transaction(["feed"], "readwrite");
@@ -99,7 +120,7 @@ export async function fetchFeed(link: string): Promise<Feed> {
     feed.feedUrl = link;
   }
 
-  addOrUpdateFeed(feed);
+  await addOrUpdateFeed(feed);
 
   return feed;
 }
@@ -132,9 +153,7 @@ export async function fetchAllFeeds(): Promise<Feed[]> {
   }
 
   const data = (await response.json()) as Feed[];
-  for (const feed of data) {
-    addOrUpdateFeed(feed);
-  }
+  await addOrUpdateFeedList(data);
 
   return data;
 }
