@@ -5,7 +5,12 @@ import { FeedItemPlaybackRow } from "../types/database";
 import { getSPDB } from "../actions/database";
 import "../components/sp-feed-list";
 import "../components/sp-loading-page.ts";
-import { deleteFeed, fetchFeed, getFeedFromCache } from "../actions/feed.ts";
+import {
+  deleteFeed,
+  fetchFeed,
+  getFeedFromCache,
+  removeFeedFromCache,
+} from "../actions/feed.ts";
 import { FeedItemCard } from "../components/sp-feed-list-item.ts";
 import { Feed } from "../types/rss.ts";
 import { router } from "../router.ts";
@@ -16,9 +21,21 @@ export class SpShowFeedPage extends LitElement {
   link: string;
 
   static styles = css`
-    .header-and-reload-container {
+    .header-container {
       display: flex;
       justify-content: space-between;
+    }
+
+    .action-container {
+      display: flex;
+    }
+
+    .action-container > button:first-child {
+      margin-inline-start: auto;
+    }
+
+    .action-container > button:last-child {
+      margin-inline-start: 0.5rem;
     }
   `;
 
@@ -52,6 +69,12 @@ export class SpShowFeedPage extends LitElement {
     },
     args: () => [],
   });
+
+  private _refreshShow = async () => {
+    removeFeedFromCache(decodeURIComponent(this.link));
+
+    this._feedTask.run();
+  };
 
   private _deleteShow = async (link: string) => {
     await deleteFeed(link);
@@ -105,8 +128,11 @@ export class SpShowFeedPage extends LitElement {
       .filter((card) => card !== null);
 
     return html`
-      <div class="header-and-reload-container">
+      <div class="header-container">
         <h1>${title}</h1>
+      </div>
+      <div class="action-container">
+        <button @click=${this._refreshShow}>Refresh</button>
         <button @click=${() => this._deleteShow(link!)}>Delete</button>
       </div>
       <sp-feed-list .feedItems=${feedItemCards}></sp-feed-list>

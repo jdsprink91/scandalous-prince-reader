@@ -3,7 +3,7 @@ import { customElement } from "lit/decorators.js";
 import { Task } from "@lit/task";
 import { FeedTableRow } from "../types/database";
 import "../components/sp-show-img";
-import { getAllFeeds, getIndexedDbFeedCache } from "../actions/feed";
+import { getSPDB } from "../actions/database";
 
 @customElement("sp-shows-page")
 export class SpShowsPage extends LitElement {
@@ -57,11 +57,8 @@ export class SpShowsPage extends LitElement {
 
   private _showsTask = new Task(this, {
     task: async () => {
-      const cache = getIndexedDbFeedCache();
-      if (cache !== null) {
-        return cache;
-      }
-      return getAllFeeds();
+      const db = await getSPDB();
+      return db.getAll("feed");
     },
     args: () => [],
   });
@@ -74,9 +71,9 @@ export class SpShowsPage extends LitElement {
       </div>
       <ul>
         ${feeds.map((show) => {
-          // TODO: make this its own row so that tasks can be better contained
+          const imgSrc = show.image?.url ?? show.itunes?.image;
           return html`<li>
-            <sp-show-img .src=${show.image?.url}></sp-show-img>
+            <sp-show-img .src=${imgSrc}></sp-show-img>
             <div class="show-title-info-container">
               <h2>${show.title}</h2>
             </div>

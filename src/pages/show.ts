@@ -35,7 +35,7 @@ export class SpShow extends AudioIntegratedElement {
     task: async () => {
       const decodedLink = decodeURIComponent(this.link);
       let feed = getFeedFromCache(decodedLink);
-      if (feed === undefined) {
+      if (feed === undefined || feed.items.length === 0) {
         feed = await fetchFeed(decodedLink);
       }
       const feedItem = feed.items.find(
