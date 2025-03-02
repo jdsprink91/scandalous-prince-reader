@@ -1,4 +1,3 @@
-import { FeedTableRow } from "../types/database";
 import { Feed, FeedItem } from "../types/rss";
 import { getSPDB } from "./database";
 
@@ -7,31 +6,14 @@ export interface FeedItemUgh extends Omit<FeedItem, "isoDate"> {
   isoDate?: Date;
 }
 
-////////////////////
-// indexed db cache
-////////////////////
-
-let indexedDbFeedCache: FeedTableRow[] | null = null;
-
-export function getIndexedDbFeedCache() {
-  return indexedDbFeedCache;
-}
-
-export async function getAllFeeds(): Promise<FeedTableRow[]> {
-  const db = await getSPDB();
-  const feed = await db.getAll("feed");
-  indexedDbFeedCache = feed;
-  return feed;
-}
-
 ///////////////////
 // feed cache
 ///////////////////
 
 let feedCache: Feed[] | null = null;
 
-export function getFeedFromCache(feedUrl: string | undefined) {
-  return feedCache?.find((feed) => feedUrl && feed.feedUrl === feedUrl);
+export function getFeedCache() {
+  return feedCache;
 }
 
 function addFeedToCache(feed: Feed) {
@@ -49,6 +31,50 @@ function addFeedToCache(feed: Feed) {
     }
   }
 }
+
+export function getFeedFromCache(feedUrl: string | undefined) {
+  return feedCache?.find((feed) => feedUrl && feed.feedUrl === feedUrl);
+}
+
+////////////////////
+// feed + indexeddb
+////////////////////
+
+export async function addOrUpdateFeed(feed: Feed) {
+  const db = await getSPDB();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { items, ...otherFeed } = feed;
+
+  const tx = db.transaction(["feed"], "readwrite");
+  const feedObjectStore = tx.objectStore("feed");
+  await feedObjectStore.put(otherFeed);
+
+  // update the cache
+  addFeedToCache(feed);
+
+  return tx.done;
+}
+
+export async function deleteFeed(link: string) {
+  const db = await getSPDB();
+  const tx = db.transaction(["feed"], "readwrite");
+
+  // delete feed
+  const feedObjectStore = tx.objectStore("feed");
+  feedObjectStore.delete(link);
+
+  // delete from cache
+  if (feedCache) {
+    feedCache = feedCache.filter((feed) => feed.link !== link);
+  }
+
+  // tell everyone that we're done
+  return tx.done;
+}
+
+/////////
+// fetch
+/////////
 
 export async function fetchFeed(link: string): Promise<Feed> {
   const response = await fetch("/api/read-rss-feed", {
@@ -69,7 +95,7 @@ export async function fetchFeed(link: string): Promise<Feed> {
     feed.feedUrl = link;
   }
 
-  addFeedToCache(feed);
+  addOrUpdateFeed(feed);
 
   return feed;
 }
@@ -103,60 +129,8 @@ export async function fetchAllFeeds(): Promise<Feed[]> {
 
   const data = (await response.json()) as Feed[];
   for (const feed of data) {
-    addFeedToCache(feed);
+    addOrUpdateFeed(feed);
   }
 
   return data;
-}
-
-////////
-// both
-////////
-
-export async function addFeed(feed: Feed) {
-  const db = await getSPDB();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { items, ...otherFeed } = feed;
-
-  const tx = db.transaction(["feed"], "readwrite");
-  const feedObjectStore = tx.objectStore("feed");
-  await feedObjectStore.put(otherFeed);
-  if (indexedDbFeedCache === null) {
-    indexedDbFeedCache = [otherFeed];
-  } else {
-    indexedDbFeedCache.push(otherFeed);
-  }
-
-  // update the cache
-  if (feedCache === null) {
-    feedCache = [feed];
-  } else {
-    if (getFeedFromCache(feed.link) === undefined) {
-      feedCache.push(feed);
-    }
-  }
-
-  return tx.done;
-}
-
-export async function deleteFeed(link: string) {
-  const db = await getSPDB();
-  const tx = db.transaction(["feed"], "readwrite");
-
-  // delete feed
-  const feedObjectStore = tx.objectStore("feed");
-  feedObjectStore.delete(link);
-
-  // delete from indexed db cache
-  if (indexedDbFeedCache !== null) {
-    indexedDbFeedCache = indexedDbFeedCache.filter((fc) => fc.link !== link);
-  }
-
-  // delete from cache
-  if (feedCache) {
-    feedCache = feedCache.filter((feed) => feed.link !== link);
-  }
-
-  // tell everyone that we're done
-  return tx.done;
 }

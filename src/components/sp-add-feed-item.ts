@@ -2,7 +2,7 @@ import { css, CSSResultGroup, html, LitElement } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import { Feed } from "../types/rss";
 import { Task } from "@lit/task";
-import { addFeed } from "../actions/feed";
+import { addOrUpdateFeed } from "../actions/feed";
 import { ifDefined } from "lit/directives/if-defined.js";
 
 @customElement("sp-add-feed-item")
@@ -26,7 +26,7 @@ export class SpAddFeedItem extends LitElement {
 
   private _addFeed = new Task(this, {
     task: async ([feed]: [Feed]) => {
-      return addFeed(feed);
+      return addOrUpdateFeed(feed);
     },
   });
 

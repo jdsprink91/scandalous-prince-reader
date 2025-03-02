@@ -3,7 +3,7 @@ import { customElement } from "lit/decorators.js";
 import { Task } from "@lit/task";
 import { FeedTableRow } from "../types/database";
 import "../components/sp-show-img";
-import { getAllFeeds, getIndexedDbFeedCache } from "../actions/feed";
+import { getSPDB } from "../actions/database";
 
 @customElement("sp-shows-page")
 export class SpShowsPage extends LitElement {
@@ -57,11 +57,8 @@ export class SpShowsPage extends LitElement {
 
   private _showsTask = new Task(this, {
     task: async () => {
-      const cache = getIndexedDbFeedCache();
-      if (cache !== null) {
-        return cache;
-      }
-      return getAllFeeds();
+      const db = await getSPDB();
+      return db.getAll("feed");
     },
     args: () => [],
   });

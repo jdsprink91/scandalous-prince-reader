@@ -41,7 +41,7 @@ export class SpShowFeedPage extends LitElement {
     task: async () => {
       const decodedLink = decodeURIComponent(this.link);
       let feed = getFeedFromCache(decodedLink);
-      if (feed === undefined) {
+      if (feed === undefined || feed.items.length === 0) {
         feed = await fetchFeed(decodedLink);
       }
       const feedItemPlayback = await this._getFeedItemPlayback();
