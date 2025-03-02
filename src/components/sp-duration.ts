@@ -60,7 +60,11 @@ export class SpDuration extends LitElement {
       return html`No duration info`;
     }
 
-    const convertedTime = dayjs(this.duration, "HH:mm:ss");
+    let convertedTime = dayjs(this.duration, "HH:mm:ss");
+    // might
+    if (!convertedTime.isValid()) {
+      convertedTime = dayjs(this.duration, "mm:ss");
+    }
 
     let durationObj = dayjs.duration({
       hours: convertedTime.hour(),

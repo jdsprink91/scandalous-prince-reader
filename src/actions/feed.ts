@@ -36,6 +36,10 @@ export function getFeedFromCache(feedUrl: string | undefined) {
   return feedCache?.find((feed) => feedUrl && feed.feedUrl === feedUrl);
 }
 
+export function removeFeedFromCache(feedUrl: string) {
+  feedCache = feedCache?.filter((feed) => feed.feedUrl !== feedUrl) ?? [];
+}
+
 ////////////////////
 // feed + indexeddb
 ////////////////////

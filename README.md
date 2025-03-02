@@ -79,10 +79,10 @@ The bug fix version
       title)
 - [ ] Can pause, but not play from main phone screen (unsure if I can do
       anything about this)
-- [ ] need a way to refresh the feed (refresh button)
+- [x] need a way to refresh the feed (refresh button)
 - [x] Why won't marketplace work? Snag their rss feed and see what's breaking.
 - [x] demolisten photo will not update
-- [ ] negative playback on show item cards (they don't have duration)
+- [x] negative playback on show item cards (they don't have duration)
 - [ ] no way to delete show if feed is broken
 
 ## V0.0.9 checklist
@@ -112,5 +112,7 @@ Some test urls
 - https://feed.podbean.com/demolisten/feed.xml
 - https://feeds.megaphone.fm/tamc9058360933
 - https://feeds.buzzsprout.com/1004689.rss
+- https://kutkutx.studio/category/kut-news-now/feed
+- https://audioboom.com/channels/5135319.rss
 
 this list has a good amount of style and rss feed issues
