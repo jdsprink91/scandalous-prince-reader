@@ -49,6 +49,7 @@ export class SpMobileAudioPlayer extends LitElement {
       gap: 0.5rem;
       flex-grow: 1;
       justify-content: space-between;
+      align-items: center;
     }
 
     .title {
@@ -73,6 +74,7 @@ export class SpMobileAudioPlayer extends LitElement {
 
     sp-play-pause-button {
       width: 50px;
+      height: 50px;
     }
   `;
 
