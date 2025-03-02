@@ -75,7 +75,7 @@ something.
 The bug fix version
 
 - [ ] overflow on links (peep demolisten episode 252)
-- [ ] Button still gets squished on lil player (see KUT news episode with long
+- [x] Button still gets squished on lil player (see KUT news episode with long
       title)
 - [ ] Can pause, but not play from main phone screen (unsure if I can do
       anything about this)

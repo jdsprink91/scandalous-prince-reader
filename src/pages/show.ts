@@ -23,6 +23,10 @@ export class SpShow extends AudioIntegratedElement {
       margin-left: auto;
       width: 30px;
     }
+
+    section {
+      overflow-wrap: break-word;
+    }
   `;
 
   @property({ type: String })
