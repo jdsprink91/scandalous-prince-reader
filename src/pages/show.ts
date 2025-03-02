@@ -160,7 +160,6 @@ export class SpShow extends AudioIntegratedElement {
   }
 
   render() {
-    console.log("I'm here");
     return this._showTask.render({
       pending: () => html`<sp-loading-page></sp-loading-page>`,
       complete: this._renderShow,
