@@ -8,7 +8,6 @@ dayjs.extend(customParseFormat);
 dayjs.extend(duration);
 
 function niceTime(duration: duration.Duration) {
-  console.log(duration);
   const hours = duration.get("h");
   const minutes = duration.get("m");
   const hourString = hours
