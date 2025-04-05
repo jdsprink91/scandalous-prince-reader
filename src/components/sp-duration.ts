@@ -8,6 +8,7 @@ dayjs.extend(customParseFormat);
 dayjs.extend(duration);
 
 function niceTime(duration: duration.Duration) {
+  console.log(duration);
   const hours = duration.get("h");
   const minutes = duration.get("m");
   const hourString = hours
@@ -60,11 +61,7 @@ export class SpDuration extends LitElement {
       return html`No duration info`;
     }
 
-    let convertedTime = dayjs(this.duration, "HH:mm:ss");
-    // might
-    if (!convertedTime.isValid()) {
-      convertedTime = dayjs(this.duration, "mm:ss");
-    }
+    const convertedTime = dayjs(this.duration, "HH:mm:ss");
 
     let durationObj = dayjs.duration({
       hours: convertedTime.hour(),

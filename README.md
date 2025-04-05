@@ -74,29 +74,31 @@ something.
 
 The bug fix version
 
-- [ ] overflow on links (peep demolisten episode 252)
+- [x] overflow on links (peep demolisten episode 252)
 - [x] Button still gets squished on lil player (see KUT news episode with long
       title)
-- [ ] Can pause, but not play from main phone screen (unsure if I can do
-      anything about this)
 - [x] need a way to refresh the feed (refresh button)
 - [x] Why won't marketplace work? Snag their rss feed and see what's breaking.
 - [x] demolisten photo will not update
 - [x] negative playback on show item cards (they don't have duration)
 - [ ] no way to delete show if feed is broken
+- [ ] make add a show page nice
 
 ## V0.0.9 checklist
 
 - [ ] Recently played list. This will require some fun re-architecting. 1. Pull all feeds silently when the app is loading up 2. hook into that for everything
+
+## V0.0.10 checklist
+
 - [ ] add full page audio page
 - [ ] Add audio scrubber / playback speed
 
-## V0.0.10 checklist
+## V0.0.11 checklist
 
 Tons of style updates
 
 - [ ] Get rid of `LiteDomLitElement`. Replace with inline style override or
-      whatever.
+      whatever. Or just make it obvious I'm not using shadow dom.
 - [ ] backup image for everything
 - [ ] Progress bar moves based on time duration (need to set width on duration)
 - [ ] Error states
@@ -114,5 +116,3 @@ Some test urls
 - https://feeds.buzzsprout.com/1004689.rss
 - https://kutkutx.studio/category/kut-news-now/feed
 - https://audioboom.com/channels/5135319.rss
-
-this list has a good amount of style and rss feed issues

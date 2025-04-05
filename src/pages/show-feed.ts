@@ -94,7 +94,6 @@ export class SpShowFeedPage extends LitElement {
           !feedItem.enclosure.url ||
           !imgSrc ||
           !feedItem.itunes ||
-          !feedItem.itunes.duration ||
           !feedItem.guid ||
           !feedItem.isoDate ||
           !feedUrl
@@ -108,7 +107,7 @@ export class SpShowFeedPage extends LitElement {
           dateAdded: new Date(feedItem.isoDate),
           showName: title,
           audioSrc: feedItem.enclosure.url,
-          duration: feedItem.itunes.duration,
+          duration: feedItem.itunes.duration || "",
           imgSrc,
           feedItemPlayback: feedItemPlayback
             ? feedItemPlayback[feedItem.enclosure!.url]

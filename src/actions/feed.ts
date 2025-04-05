@@ -125,9 +125,6 @@ export async function fetchFeed(link: string): Promise<Feed> {
   return feed;
 }
 
-// so what do we want here?
-// Basically, I want to make sure that we return the SAME promise object
-
 export async function fetchAllFeeds(): Promise<Feed[]> {
   const db = await getSPDB();
   const feeds = await db.getAll("feed");
