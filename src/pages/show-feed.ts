@@ -84,7 +84,16 @@ export class SpShowFeedPage extends LitElement {
     const { title, link, feedUrl } = feed;
     const feedItemCards: FeedItemCard[] = feed.items
       .map((feedItem) => {
-        const imgSrc = feedItem.itunes?.image ?? feed.image?.url;
+        let imgSrc = feedItem.itunes?.image;
+
+        if (!imgSrc) {
+          imgSrc = feed.image?.url;
+        }
+
+        if (!imgSrc) {
+          imgSrc = feed.itunes?.image;
+        }
+
         if (
           !feedItem.title ||
           !feedItem.contentSnippet ||
